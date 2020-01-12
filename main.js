@@ -1,6 +1,7 @@
 
 const { app, BrowserWindow, protocol } = require('electron')
 const path = require('path')
+const url = require('url')
 
 let win;
 
@@ -32,7 +33,12 @@ function createWindow () {
     icon: `file://${__dirname}/dist/ParamsRemote/favicon.ico`
   })
 
-  win.loadURL(`file://${__dirname}/dist/ParamsRemote/index.html`)
+  // win.loadURL(`file://${__dirname}/dist/ParamsRemote/index.html`)
+  win.loadURL(url.format({
+    pathname: 'index.html',
+    protocol: PROTOCOL+':',
+    slashes: true
+  }));
 
   // uncomment below to open the DevTools.
   // win.webContents.openDevTools()
