@@ -1,1 +1,20 @@
-<p>app-connect-form works!</p>
+<form [formGroup]="connectForm"
+  (ngSubmit)="onSubmit(connectFrom.value)"></form>>
+
+   <div>
+    <label for="host">
+      Host
+    </label>
+    <input id="host" type="text" formControlName="host">
+  </div>
+
+  <div>
+    <label for="port">
+      Address
+    </label>
+    <input id="port" type="number" formControlName="port">
+  </div>
+
+
+  <button class="button" type="submit">Connect</button>
+</form>
