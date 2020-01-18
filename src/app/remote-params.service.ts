@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 
 class Client {
   host: string;
@@ -12,6 +12,10 @@ class Client {
   connect() {
     console.log(`TODO: remote_params.Client.connect to ${this.host}:${this.port}`);
   }
+
+  disconnect() {
+    console.log(`TODO: remote_params.Client.disconnect from ${this.host}:${this.port}`);
+  }
 }
 
 @Injectable({
@@ -19,6 +23,8 @@ class Client {
 })
 export class RemoteParamsService {
   clients = {}; // will contain <sessionId>:<remote_params_client> pairs
+  onConnect = new EventEmitter();
+  onDisconnect = new EventEmitter();
 
   constructor() { }
 
@@ -37,6 +43,21 @@ export class RemoteParamsService {
     client.connect();
 
     this.clients[sessionId] = client;
+    this.onConnect.emit(client);
+
     return client;
+  }
+
+  disconnect(sessionId: string) {
+    const c = this.clients[sessionId];
+
+    if (c === undefined) {
+      console.warn(`Could not find client for id: ${sessionId}`);
+      return;
+    }
+
+    c.disconnect();
+    delete this.clients[sessionId];
+    this.onConnect.emit(c);
   }
 }

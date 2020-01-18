@@ -7,11 +7,21 @@ import { RemoteParamsService } from '../remote-params.service';
   styleUrls: ['./app-home-component.component.scss']
 })
 export class AppHomeComponentComponent implements OnInit {
+  sessionIds = [];
+
   constructor(
     private remoteParamsService: RemoteParamsService
   ) { }
 
   ngOnInit() {
+    this.remoteParamsService.onConnect.subscribe((c) => this.updateSessionIds());
+    this.remoteParamsService.onDisconnect.subscribe((c) => this.updateSessionIds());
+    this.updateSessionIds();
+  }
+
+  updateSessionIds() {
+    console.log('updateSessionIds');
+    this.sessionIds = Object.keys(this.remoteParamsService.clients);
   }
 
 }

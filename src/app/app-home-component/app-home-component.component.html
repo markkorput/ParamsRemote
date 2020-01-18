@@ -1,3 +1,7 @@
-<p>app-home-component works!</p>
-
 <app-connect-form></app-connect-form>
+
+<hr/>
+
+<div *ngFor="let sessionId of sessionIds">
+  <app-app-session [id]="sessionId"></app-app-session>
+</div>
