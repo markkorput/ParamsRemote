@@ -6,13 +6,14 @@ import { AppHomeComponentComponent } from './app-home-component/app-home-compone
 
 @NgModule({
   declarations: [
-    AppComponent,
+    // AppComponent,
     AppHomeComponentComponent
   ],
   imports: [
     BrowserModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  // bootstrap: [AppComponent]
+  bootstrap: [AppHomeComponentComponent]
 })
 export class AppModule { }
