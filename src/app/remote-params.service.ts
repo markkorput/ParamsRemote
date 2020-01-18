@@ -10,6 +10,7 @@ class Client {
   }
 
   connect() {
+    console.log(`TODO: remote_params.Client.connect to ${this.host}:${this.port}`);
   }
 }
 

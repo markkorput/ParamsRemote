@@ -7,8 +7,6 @@ import { RemoteParamsService } from '../remote-params.service';
   styleUrls: ['./app-home-component.component.scss']
 })
 export class AppHomeComponentComponent implements OnInit {
-  @Input() onChange; // param change callback
-
   constructor(
     private remoteParamsService: RemoteParamsService
   ) { }
