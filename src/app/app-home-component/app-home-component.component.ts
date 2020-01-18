@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-
+import { RemoteParamsService } from '../remote-params.service';
 
 @Component({
   selector: 'app-app-home-component',
@@ -9,7 +9,9 @@ import { Component, OnInit, Input } from '@angular/core';
 export class AppHomeComponentComponent implements OnInit {
   @Input() onChange; // param change callback
 
-  constructor() { }
+  constructor(
+    private remoteParamsService: RemoteParamsService
+  ) { }
 
   ngOnInit() {
   }
