@@ -8,9 +8,12 @@ import { catchError } from 'rxjs/operators';
   templateUrl: './app-session.component.html',
   styleUrls: ['./app-session.component.scss']
 })
+
 export class AppSessionComponent implements OnInit {
   client: Client = undefined;
+  
   @Input() id: string;
+  @Input() liveUpdate = false;
 
   paramList = [
       new Param('/test/param', 's', undefined, undefined),
@@ -45,5 +48,28 @@ export class AppSessionComponent implements OnInit {
     this.client.sendValue(path, value)
       .then()
       .catch(err => console.log('Failed to send param value:', err));
+  }
+
+  getValue(path: string): Observable<any> {
+    return of('no-values-yet');
+  }
+
+  onParamInput(path, value) {
+    // console.log(`onParamInput: ${path} ${value}`)
+
+    if (this.liveUpdate) {
+      this.onParamChange(path, value);
+    }
+  }
+
+  onParamChange(path, value) {
+    // console.log(`onParamChange: ${path} ${value}`)
+    if (!this.client) {
+      console.warn('No client');
+      return;
+    }
+
+    this.client.sendValue(path, value)
+      .catch(err => console.log('Failed to send remote param value: ', err));
   }
 }
