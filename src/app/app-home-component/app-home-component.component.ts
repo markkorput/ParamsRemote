@@ -14,13 +14,5 @@ export class AppHomeComponentComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-  //   // this.remoteParamsService.onConnect.subscribe((c) => this.updateSessionIds());
-  //   // this.remoteParamsService.onDisconnect.subscribe((c) => this.updateSessionIds());
-  //   // this.updateSessionIds();
-  //   // this.getSessionIds();
   }
-
-  // updateSessionIds() {
-  //   // this.sessionIds = Object.keys(this.remoteParamsService.clients);
-  // }
 }

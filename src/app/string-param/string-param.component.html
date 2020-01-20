@@ -1,0 +1,5 @@
+
+<label [for]="path">{{path}}</label>
+<input type="text" [id]="path" [ngModel]="value"
+  (input)="onInput($event.target.value)"
+  (change)="onChange($event.target.value)" />

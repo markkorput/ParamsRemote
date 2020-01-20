@@ -5,10 +5,11 @@
 <main>
   <ul *ngIf="getParams() | async as params">
     <li *ngFor="let param of params" [ngSwitch]="param.type">
-      <ng-template ngSwitchCase="s">{{param.path}} [string]</ng-template>
       <ng-template ngSwitchCase="i">{{param.path}} [int]</ng-template>
       <ng-template ngSwitchCase="f">{{param.path}} [float]</ng-template>
       <ng-template ngSwitchCase="b">{{param.path}} [bool]</ng-template>
+      
+      <app-string-param *ngSwitchCase="'s'" [path]="param.path" [value]="param.value || ''" (valueChange)="setValue(param.path, $event)"></app-string-param>
       <ng-template ngSwitchDefault>Unknown param type ({{param.type}}) for param: {{param.path}}</ng-template>
     </li>
   </ul>

@@ -1,10 +1,25 @@
 import { Injectable, EventEmitter, Inject } from '@angular/core';
 import {LOCAL_STORAGE, WebStorageService} from 'angular-webstorage-service';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
-class Client {
+export class Param {
+  path: string;
+  type: string;
+  value: any;
+  opts: object;
+
+  constructor(path: string, type: string, value: any, opts: object) {
+    this.path = path;
+    this.type = type;
+    this.value = value;
+    this.opts = opts || {};
+  }
+}
+
+export class Client {
   host: string;
   port: number;
+  oscClient: any = undefined;
 
   constructor(host: string, port: number) {
     this.host = host;
@@ -21,6 +36,18 @@ class Client {
 
   disconnect() {
     console.log(`TODO: remote_params.Client.disconnect from ${this.host}:${this.port}`);
+  }
+
+  sendValue(path: string, value: any): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      if (this.oscClient) {
+        // this.oscClient.send()
+        resolve(true);
+        return;
+      }
+
+      reject(new Error('OSC not implemented yet'));
+    });
   }
 }
 
@@ -45,7 +72,7 @@ export class RemoteParamsService {
   connect(host: string, port: number) {
     const sessionId = `${host}:${port}`;
 
-    if (this.getClient(sessionId)) {
+    if (this._getClient(sessionId)) {
       console.log(`Already found a session with id ${sessionId}`);
       return this.clients[sessionId];
     }
@@ -63,7 +90,7 @@ export class RemoteParamsService {
   }
 
   disconnect(sessionId: string) {
-    const c = this.getClient(sessionId); // this.clients[sessionId];
+    const c = this._getClient(sessionId); // this.clients[sessionId];
 
     if (c === undefined) {
       console.warn(`Could not find client for id: ${sessionId}`);
@@ -72,17 +99,31 @@ export class RemoteParamsService {
 
     c.disconnect();
     // delete this.clients[sessionId];
-    this.clients.splice(this.clients.findIndex(c => c.getId() === sessionId), 1);
+    this.clients.splice(this.clients.findIndex(cli => cli.getId() === sessionId), 1);
     this.onConnect.emit(c);
 
     this._save();
   }
 
   getClients(): Observable<Client[]> {
+    // return of(Object.values(this.clients));
     return of(Object.values(this.clients));
   }
 
-  getClient(sessionId: string): Client {
+  getClient(sessionId: string): Observable<Client> {
+    return new Observable<Client>((observer) => {
+      this.getClients().subscribe(clients => {
+          const foundClient = clients.find(client => client.getId() === sessionId);
+          if (foundClient) {
+            observer.next(foundClient);
+          } else {
+            observer.error(`Could not find client with sessionId: ${sessionId}`);
+          }
+      });
+    });
+  }
+
+  _getClient(sessionId: string): Client {
     return this.clients.find(c => c.getId() === sessionId);
   }
 

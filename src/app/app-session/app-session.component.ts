@@ -1,20 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { RemoteParamsService } from '../remote-params.service';
+import { RemoteParamsService, Param, Client } from '../remote-params.service';
 import { Observable, of } from 'rxjs';
-
-class Param {
-  path: string;
-  type: string;
-  value: any;
-  opts: object;
-
-  constructor(path: string, type: string, value: any, opts: object) {
-    this.path = path;
-    this.type = type;
-    this.value = value;
-    this.opts = opts || {};
-  }
-}
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-app-session',
@@ -22,13 +9,21 @@ class Param {
   styleUrls: ['./app-session.component.scss']
 })
 export class AppSessionComponent implements OnInit {
+  client: Client = undefined;
   @Input() id: string;
+
+  paramList = [
+      new Param('/test/param', 's', undefined, undefined),
+      new Param('/test/param2', 'i', undefined, undefined),
+      new Param('/test/param3', 'f', undefined, undefined),
+      new Param('/test/param4', 'b', undefined, undefined)];
 
   constructor(
     private remoteParamsService: RemoteParamsService
   ) { }
 
   ngOnInit() {
+    this.remoteParamsService.getClient(this.id).subscribe((c) => this.client=c);
   }
 
   disconnect() {
@@ -36,10 +31,19 @@ export class AppSessionComponent implements OnInit {
   }
 
   getParams(): Observable<Param[]> {
-    return of([
-      new Param('/test/param', 's', undefined, undefined),
-      new Param('/test/param2', 'i', undefined, undefined),
-      new Param('/test/param3', 'f', undefined, undefined),
-      new Param('/test/param4', 'b', undefined, undefined)]);
+    return of(this.paramList);
+  }
+
+  setValue(path: string, value: any) {
+    // console.log('session.setValue:', path, value);
+    if (!this.client) {
+      console.warn(`Could not send value '${value}' for param '${path}'`,
+        `because we don't haven a client instance for session ID '${this.id}' yet`);
+      return;
+    }
+
+    this.client.sendValue(path, value)
+      .then()
+      .catch(err => console.log('Failed to send param value:', err));
   }
 }
