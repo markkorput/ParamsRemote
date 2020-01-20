@@ -1,0 +1,40 @@
+<div [ngSwitch]="type">
+
+  <!-- integer -->
+  <div *ngSwitchCase="'i'">
+    <label [for]="path">{{path}}</label>
+    <input type="number" [id]="path"
+      [ngModel]="editValue"
+      (input)="onUserInput(path, $event.target.value)"
+      (change)="onUserChange(path, $event.target.value)" />
+  </div>
+
+  <!-- float -->
+  <div *ngSwitchCase="'f'">
+    <label [for]="path">{{path}}</label>
+    <input type="number" step="0.01" [id]="path"
+      [ngModel]="editValue"
+      (input)="onUserInput(path, $event.target.value)"
+      (change)="onUserChange(path, $event.target.value)" />
+  </div>
+
+  <!-- string -->
+  <div *ngSwitchCase="'s'">
+    <label [for]="path">{{path}}</label>
+    <input type="text" [id]="path"
+      [ngModel]="editValue"
+      (input)="onUserInput(path, $event.target.value)"
+      (change)="onUserChange(path, $event.target.value)" />
+  </div>
+
+  <!-- bool -->
+  <div *ngSwitchCase="'b'">
+    <label [for]="path">{{path}}</label>
+    <input type="checkbox" [id]="path"
+      [ngModel]="editValue"
+      (input)="onUserInput(path, $event.target.checked)"
+      (change)="onUserChange(path, $event.target.checked)" />
+  </div>
+
+  <ng-template ngSwitchDefault>Unknown param type ({{type}}) for param: {{path}}</ng-template>
+</div>

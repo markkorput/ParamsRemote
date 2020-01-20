@@ -7,13 +7,15 @@ import { StorageServiceModule} from 'angular-webstorage-service';
 import { AppHomeComponentComponent } from './app-home-component/app-home-component.component';
 import { AppConnectFormComponent } from './app-connect-form/app-connect-form.component';
 import { AppSessionComponent } from './app-session/app-session.component';
+import { ParamComponent } from './param/param.component';
 
 @NgModule({
   declarations: [
     // AppComponent,
     AppHomeComponentComponent,
     AppConnectFormComponent,
-    AppSessionComponent
+    AppSessionComponent,
+    ParamComponent
   ],
   imports: [
     BrowserModule,

@@ -1,5 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { RemoteParamsService, Param, Client } from '../remote-params.service';
+import { Component, OnInit, Input, NgZone } from '@angular/core';
+import { RemoteParamsService, Param, Params, Client, createSyncParams } from '../remote-params.service';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -11,22 +11,34 @@ import { catchError } from 'rxjs/operators';
 
 export class AppSessionComponent implements OnInit {
   client: Client = undefined;
-  
+  params: Params = undefined;
+  destroySyncParams: () => void = undefined;
+
   @Input() id: string;
   @Input() liveUpdate = false;
 
-  paramList = [
-      new Param('/test/param', 's', undefined, undefined),
-      new Param('/test/param2', 'i', undefined, undefined),
-      new Param('/test/param3', 'f', undefined, undefined),
-      new Param('/test/param4', 'b', undefined, undefined)];
-
   constructor(
-    private remoteParamsService: RemoteParamsService
+    private remoteParamsService: RemoteParamsService,
+    private ngZone: NgZone
   ) { }
 
   ngOnInit() {
-    this.remoteParamsService.getClient(this.id).subscribe((c) => this.client=c);
+    this.remoteParamsService.getClient(this.id).subscribe((c) => {
+      this.client = c;
+      window.sess = this;
+      this.client.newSchema.subscribe(schemaData => this.onNewSchemaFromServer(schemaData));
+
+      const { params, destroy } = createSyncParams(this.client);
+      this.params = params;
+      this.destroySyncParams = destroy;
+
+      [new Param('/test/param', 's', undefined, undefined),
+      new Param('/test/param2', 'i', undefined, undefined),
+      new Param('/test/param3', 'f', undefined, undefined),
+      new Param('/test/param4', 'b', false, undefined)].forEach(p => this.params.add(p));
+
+      // this.onNewSchemaFromServer();
+    });
   }
 
   disconnect() {
@@ -34,42 +46,30 @@ export class AppSessionComponent implements OnInit {
   }
 
   getParams(): Observable<Param[]> {
-    return of(this.paramList);
+    return of(this.params.params);
   }
 
-  setValue(path: string, value: any) {
-    // console.log('session.setValue:', path, value);
-    if (!this.client) {
-      console.warn(`Could not send value '${value}' for param '${path}'`,
-        `because we don't haven a client instance for session ID '${this.id}' yet`);
-      return;
-    }
+  onNewSchemaFromServer(schemaData: []): void {
+    // this function is called from an external event, we need to explicitly
+    // execute inside the angular zone, otherwise attrtibute changes
+    // are not detected
+    this.ngZone.runGuarded(() => {
+      if (this.destroySyncParams) {
+        this.destroySyncParams();
+      }
 
-    this.client.sendValue(path, value)
-      .then()
-      .catch(err => console.log('Failed to send param value:', err));
+      const { params, destroy } = createSyncParams(this.client, schemaData);
+      this.params = params;
+      this.destroySyncParams = destroy;
+    });
   }
 
-  getValue(path: string): Observable<any> {
-    return of('no-values-yet');
-  }
+  testNewSchema() {
+    const data = [
+      {path:'/new/p1', type:'s', value:'_INITIAL VALUE_'},
+      {path:'/new/p2', type:'i', value:'1'}
+    ];
 
-  onParamInput(path, value) {
-    // console.log(`onParamInput: ${path} ${value}`)
-
-    if (this.liveUpdate) {
-      this.onParamChange(path, value);
-    }
-  }
-
-  onParamChange(path, value) {
-    // console.log(`onParamChange: ${path} ${value}`)
-    if (!this.client) {
-      console.warn('No client');
-      return;
-    }
-
-    this.client.sendValue(path, value)
-      .catch(err => console.log('Failed to send remote param value: ', err));
+    this.client.newSchema.emit(data);
   }
 }

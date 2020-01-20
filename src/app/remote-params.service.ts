@@ -8,11 +8,70 @@ export class Param {
   value: any;
   opts: object;
 
+  valueChange = new EventEmitter();
+
   constructor(path: string, type: string, value: any, opts: object) {
     this.path = path;
     this.type = type;
     this.value = value;
     this.opts = opts || {};
+  }
+
+  set(value: any): void {
+    if (this.value !== value) {
+      this.value = value;
+      this.valueChange.emit(this.value);
+    }
+  }
+}
+
+export class Params {
+  params: Param[] = [];
+  removers = {};
+
+  valueChange = new EventEmitter();
+  schemaChange = new EventEmitter();
+
+  add(param: Param) {
+    const listener = value => {
+      this.valueChange.emit({path: param.path, value});
+    };
+
+    const subscription = param.valueChange.subscribe(listener);
+    const remover = () => subscription.unsubscribe();
+
+    this.params.push(param);
+    this.removers[param.path] = remover;
+
+    this.schemaChange.emit();
+  }
+
+  remove(param: Param) {
+    const idx = this.params.indexOf(param);
+
+    if (idx < 0) {
+      return;
+    }
+
+    this.params.splice(idx, 1);
+
+    if (this.removers[param.path]) {
+      const func = this.removers[param.path];
+      func();
+      delete this.removers[param.path];
+    }
+
+    this.schemaChange.emit();
+  }
+
+  get(path: string): Param {
+    return this.params.find(p => p.path === path);
+  }
+
+  getValues(): object {
+    const result = {};
+    this.params.forEach(p => result[p.path] = p.value);
+    return result;
   }
 }
 
@@ -20,6 +79,11 @@ export class Client {
   host: string;
   port: number;
   oscClient: any = undefined;
+  syncParams: Params = new Params();
+  lastSchemaData: [] = undefined;
+
+  newValue = new EventEmitter();
+  newSchema = new EventEmitter();
 
   constructor(host: string, port: number) {
     this.host = host;
@@ -49,6 +113,59 @@ export class Client {
       reject(new Error('OSC not implemented yet'));
     });
   }
+
+  getSyncParams(): Params {
+    return this.syncParams;
+  }
+}
+
+export class Schema {
+  data: [] = undefined;
+
+  constructor(data: []) {
+    this.data = data || [];
+  }
+
+  applyTo(params: Params): void {
+    // console.log(this.data);
+
+    this.data.forEach(item => {
+      // already exists?
+      if (params.get(item.path)) {
+        return;
+      }
+
+      const p = new Param(item.path, item.type, item.value, {});
+      params.add(p);
+    });
+  }
+}
+
+export function createSyncParams(client: Client, schemaData?: []): {params: Params, destroy: () => void} {
+  const params = new Params();
+
+  // TODO; also apply schema updates?
+  const data = schemaData || client.lastSchemaData || [];
+
+  const schema = new Schema(schemaData);
+  schema.applyTo(params);
+
+  const subscr = client.newValue.subscribe((info) => {
+    const { path, value } = info;
+    const param = params.get(path);
+    if (param) {
+      param.set(value);
+      return;
+    }
+    console.warn('param not found:',path);
+  });
+
+  const destroy = () => {
+    console.log('unsubbing!');
+    subscr.unsubscribe();
+  };
+
+  return { params, destroy };
 }
 
 @Injectable({
@@ -59,6 +176,7 @@ export class RemoteParamsService {
   clients: Client[] = []; // will contain <sessionId>:<remote_params_client> pairs
   onConnect = new EventEmitter();
   onDisconnect = new EventEmitter();
+  localValues = {};
 
   constructor(
     @Inject(LOCAL_STORAGE) private storage: WebStorageService
@@ -140,5 +258,20 @@ export class RemoteParamsService {
     });
 
     return count;
+  }
+
+  getLocalValue(sessionId: string, path: string): any {
+    if (this.localValues[sessionId] === undefined) {
+      return undefined;
+    }
+
+    return this.localValues[sessionId][path];
+  }
+
+  setLocalValue(sessionId: string, path: string, value: any): void {
+    if (this.localValues[sessionId] === undefined) {
+      this.localValues[sessionId] = {}
+    }
+    this.localValues[sessionId][path] = value;
   }
 }
