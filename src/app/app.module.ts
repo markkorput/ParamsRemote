@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { StorageServiceModule} from 'angular-webstorage-service';
 
 // import { AppComponent } from './app.component';
 import { AppHomeComponentComponent } from './app-home-component/app-home-component.component';
@@ -17,7 +18,8 @@ import { AppSessionComponent } from './app-session/app-session.component';
   imports: [
     BrowserModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    StorageServiceModule
   ],
   providers: [],
   // bootstrap: [AppComponent]
