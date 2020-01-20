@@ -1,7 +1,16 @@
 <header>
+  <h1>{{ id }}</h1>
   <button (click)="disconnect()">disconnect</button>
 </header>
 <main>
-  <p>app-session: {{ id }}.</p>
+  <ul *ngIf="getParams() | async as params">
+    <li *ngFor="let param of params" [ngSwitch]="param.type">
+      <ng-template ngSwitchCase="s">{{param.path}} [string]</ng-template>
+      <ng-template ngSwitchCase="i">{{param.path}} [int]</ng-template>
+      <ng-template ngSwitchCase="f">{{param.path}} [float]</ng-template>
+      <ng-template ngSwitchCase="b">{{param.path}} [bool]</ng-template>
+      <ng-template ngSwitchDefault>Unknown param type ({{param.type}}) for param: {{param.path}}</ng-template>
+    </li>
+  </ul>
 </main>
 
