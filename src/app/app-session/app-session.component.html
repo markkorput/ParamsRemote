@@ -4,10 +4,14 @@
   <button (click)="refresh()">refresh</button>
 </header>
 <main>
-  <ul *ngIf="getParams() | async as params">
+  <ul *ngIf="getParams() | async as params;">
     <li *ngFor="let param of params">
       <app-param [client]="client" [param]="param"></app-param>
     </li>
   </ul>
+
+  <p *ngIf="noParams()">
+    Loading schema...
+  </p>
 </main>
 

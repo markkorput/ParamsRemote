@@ -44,12 +44,16 @@ export class AppSessionComponent implements OnInit {
     return of(this.params);
   }
 
+  noParams(): boolean {
+    return this.params.length === 0;
+  }
+
   _initNewParams(params: Params): void {
     // this function is called from an external event, we need to explicitly
     // execute inside the angular zone, otherwise attrtibute changes
     // are not detected
     this.ngZone.runGuarded(() => {
-      this.params = [new Param('/first/on/is/for/free', 's', undefined, undefined)].concat(params.params);
+      this.params = params.params;
     });
   }
 }

@@ -159,11 +159,6 @@ export class Client {
   params: Params = new Params();
   schema: Schema = null;
 
-  syncParams: Params = new Params();
-  lastSchemaData: [] = undefined;
-
-  newValue = new EventEmitter();
-
   getId(): string {
     return this.id;
   }
@@ -174,6 +169,10 @@ export class Client {
   disconnect() {
   }
 }
+
+//
+// WebSockets
+//
 
 class WebsocketsOutputInterface extends OutputInterface {
   static SCHEMA_REQUEST = `GET schema.json`;
@@ -250,10 +249,6 @@ class WebsocketsInputInterface extends InputInterface {
     }
   }
 }
-
-//
-// WebSockets
-//
 
 export class WebsocketsClient extends Client {
   static idprefix = 'wsock-';
@@ -368,7 +363,6 @@ class OscOutputInterface extends OutputInterface {
   }
 }
 
-
 class OscInputInterface extends InputInterface {
   port?: number;
   // oscServer: OscServer = null;
@@ -412,37 +406,13 @@ export class OscClient extends Client {
   }
 }
 
-// export function createSyncParams(client: Client, schemaData?: []): {params: Params, destroy: () => void} {
-//   const params = new Params();
-
-//   // TODO; also apply schema updates?
-//   const data = schemaData || client.lastSchemaData || [];
-
-//   const schema = new Schema(schemaData);
-//   schema.applyTo(params);
-
-//   const subscr = client.newValue.subscribe((info) => {
-//     const { path, value } = info;
-//     const param = params.get(path);
-//     if (param) {
-//       param.set(value);
-//       return;
-//     }
-//     console.warn('param not found:', path);
-//   });
-
-//   const destroy = () => {
-//     console.log('unsubbing!');
-//     subscr.unsubscribe();
-//   };
-
-//   return { params, destroy };
-// }
+//
+// Angular Service
+//
 
 @Injectable({
   providedIn: 'root'
 })
-
 export class RemoteParamsService {
   clients: Client[] = []; // will contain <sessionId>:<remote_params_client> pairs
   onConnect = new EventEmitter();
