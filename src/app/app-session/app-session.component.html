@@ -1,6 +1,7 @@
 <header>
   <h1>{{ id }}</h1>
   <button (click)="disconnect()">disconnect</button>
+  <button (click)="refresh()">refresh</button>
 </header>
 <main>
   <ul *ngIf="getParams() | async as params">

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
-import { RemoteParamsService, Param, Params, Client, createSyncParams } from '../remote-params.service';
+import { RemoteParamsService, Param, Client } from '../remote-params.service';
 
 @Component({
   selector: 'app-param',
@@ -50,8 +50,7 @@ export class ParamComponent implements OnInit {
       return;
     }
 
-    this.client.sendValue(path, value)
-      .catch(err => console.log('Failed to send remote param value: ', err));
+    this.client.output.sendValue(path, value);
   }
 
   onNewValueFromServer(value: any) {

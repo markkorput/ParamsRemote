@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
-import { RemoteParamsService, Param, Params, Client, createSyncParams } from '../remote-params.service';
+import { RemoteParamsService, Param, Params, Client } from '../remote-params.service';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+// import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-app-session',
@@ -11,8 +11,7 @@ import { catchError } from 'rxjs/operators';
 
 export class AppSessionComponent implements OnInit {
   client: Client = undefined;
-  params: Params = undefined;
-  destroySyncParams: () => void = undefined;
+  params: Param[] = [];
 
   @Input() id: string;
   @Input() liveUpdate = false;
@@ -25,19 +24,11 @@ export class AppSessionComponent implements OnInit {
   ngOnInit() {
     this.remoteParamsService.getClient(this.id).subscribe((c) => {
       this.client = c;
-      // window.sess = this; // FOR DEBUGGING
-      this.client.newSchema.subscribe(schemaData => this.onNewSchemaFromServer(schemaData));
+      this.client.params.schemaChange.subscribe(() => {
+        this._initNewParams(this.client.params);
+      });
 
-      const { params, destroy } = createSyncParams(this.client);
-      this.params = params;
-      this.destroySyncParams = destroy;
-
-      [new Param('/test/param', 's', undefined, undefined),
-      new Param('/test/param2', 'i', undefined, undefined),
-      new Param('/test/param3', 'f', undefined, undefined),
-      new Param('/test/param4', 'b', false, undefined)].forEach(p => this.params.add(p));
-
-      // this.onNewSchemaFromServer();
+      this._initNewParams(this.client.params);
     });
   }
 
@@ -45,31 +36,20 @@ export class AppSessionComponent implements OnInit {
     this.remoteParamsService.disconnect(this.id);
   }
 
-  getParams(): Observable<Param[]> {
-    return of(this.params.params);
+  refresh() {
+    this.client.output.requestSchema();
   }
 
-  onNewSchemaFromServer(schemaData: []): void {
+  getParams(): Observable<Param[]> {
+    return of(this.params);
+  }
+
+  _initNewParams(params: Params): void {
     // this function is called from an external event, we need to explicitly
     // execute inside the angular zone, otherwise attrtibute changes
     // are not detected
     this.ngZone.runGuarded(() => {
-      if (this.destroySyncParams) {
-        this.destroySyncParams();
-      }
-
-      const { params, destroy } = createSyncParams(this.client, schemaData);
-      this.params = params;
-      this.destroySyncParams = destroy;
+      this.params = [new Param('/first/on/is/for/free', 's', undefined, undefined)].concat(params.params);
     });
-  }
-
-  testNewSchema() {
-    const data = [
-      {path:'/new/p1', type:'s', value:'_INITIAL VALUE_'},
-      {path:'/new/p2', type:'i', value:'1'}
-    ];
-
-    this.client.newSchema.emit(data);
   }
 }

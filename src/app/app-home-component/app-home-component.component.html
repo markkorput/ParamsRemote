@@ -7,5 +7,5 @@
 </div> -->
 
 <div *ngFor="let client of remoteParamsService.clients">
-  <app-app-session [id]="client.getId()"></app-app-session>
+  <app-app-session *ngIf="client" [id]="client.getId()"></app-app-session>
 </div>

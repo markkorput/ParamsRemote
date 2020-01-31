@@ -9,7 +9,8 @@ import { RemoteParamsService } from '../remote-params.service';
 })
 export class AppConnectFormComponent implements OnInit {
   connectForm: FormGroup;
- 
+  websocketsConnectForm: FormGroup;
+
   constructor(
     private remoteParamsService: RemoteParamsService,
     private formBuilder: FormBuilder
@@ -20,13 +21,23 @@ export class AppConnectFormComponent implements OnInit {
       host: '',
       port: 8000
     });
+
+    this.websocketsConnectForm = this.formBuilder.group({
+      host: '127.0.0.1',
+      port: 8081
+    });
+
   }
 
   ngOnInit() {
   }
 
-  onSubmit(data) {
-    this.remoteParamsService.connect(data.host, data.port);
+  onSubmitOscForm(data) {
+    this.remoteParamsService.connectOsc(data.host, data.port);
     // this.connectForm.reset();
+  }
+
+  onSubmitWebsocketsForm(data) {
+    this.remoteParamsService.connectWebsockets(data.host, data.port);
   }
 }
