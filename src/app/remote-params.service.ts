@@ -120,9 +120,9 @@ export class Client {
 }
 
 export class Schema {
-  data: [] = undefined;
+  data: {path: string, type: string, value?: any}[] = [];
 
-  constructor(data: []) {
+  constructor(data: any) {
     this.data = data || [];
   }
 
@@ -134,6 +134,7 @@ export class Schema {
       if (params.get(item.path)) {
         return;
       }
+
 
       const p = new Param(item.path, item.type, item.value, {});
       params.add(p);

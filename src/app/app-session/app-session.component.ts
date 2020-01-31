@@ -25,7 +25,7 @@ export class AppSessionComponent implements OnInit {
   ngOnInit() {
     this.remoteParamsService.getClient(this.id).subscribe((c) => {
       this.client = c;
-      window.sess = this;
+      // window.sess = this; // FOR DEBUGGING
       this.client.newSchema.subscribe(schemaData => this.onNewSchemaFromServer(schemaData));
 
       const { params, destroy } = createSyncParams(this.client);
