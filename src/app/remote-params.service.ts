@@ -98,7 +98,7 @@ export class Params {
 export class Schema {
   data: {path: string, type: string, value?: any}[] = [];
 
-  constructor(data: {path: string, type: string, value?: any}[]) {
+  constructor(data?: {path: string, type: string, value?: any}[]) {
     this.data = data || [];
   }
 
@@ -199,6 +199,7 @@ class WebsocketsOutputInterface extends OutputInterface {
       return;
     }
 
+    console.log(`Sending websocket confirm`);
     this.socket.send(`confirm`);
   }
 
@@ -208,7 +209,9 @@ class WebsocketsOutputInterface extends OutputInterface {
       return;
     }
 
-    this.socket.send(`POST ${path}?value=${value}`);
+    const msg = `POST ${path}?value=${value}`;
+    console.log(`Sending websocket value: ${msg}`);
+    this.socket.send(msg);
   }
 
   disconnect(): void {
@@ -217,12 +220,13 @@ class WebsocketsOutputInterface extends OutputInterface {
       return;
     }
 
+    console.log(`Sending websocket disconnect`);
     this.socket.send('disconnect');
   }
 }
 
 class WebsocketsInputInterface extends InputInterface {
-  schemaPrefix = 'POST schema.json?schema=';
+  static schemaPrefix = 'POST schema.json?schema=';
 
   constructor(socket?: WebSocket) {
     super();
@@ -234,18 +238,23 @@ class WebsocketsInputInterface extends InputInterface {
   }
 
   onMessage(data: any): void {
-    if (data.startsWith(this.schemaPrefix)) {
-      const jsonText = data.substr(this.schemaPrefix.length);
+    // console.log(`onMessage: ${data}`);
+
+    if (data.startsWith(WebsocketsInputInterface.schemaPrefix)) {
+      console.log('Received schema data');
+      const jsonText = data.substr(WebsocketsInputInterface.schemaPrefix.length);
       const jsonData = JSON.parse(jsonText);
       this.schema.emit(jsonData);
     }
 
     // POST <param-path>?value=<value>
-    if (data.startsWith('POST ')) {
-      const parts = data.substr('POST ').split('?value=');
+    if (data.startsWith('POST ') && data.indexOf('?value=') > -1) {
+      console.log('got  value: ', data);
+      const parts = data.substr('POST '.length).split('?value=');
       const path: string = parts[0];
       const value: any = parts[1];
       this.value.emit([path, value]);
+
     }
   }
 }
@@ -313,6 +322,18 @@ export class WebsocketsClient extends Client {
       this.schema = new Schema(schemaInfo);
       this.schema.applyTo(this.params);
     });
+
+    this.input.value.subscribe((idValuePair: [string, any]) => {
+      const [paramId, value] = idValuePair;
+      const param = this.params.get(paramId);
+      if (!param) {
+        console.warn(`Received value for unknown param: ${paramId} (value: ${value})`);
+        return;
+      }
+
+      param.set(value);
+    });
+
   }
 
   requestSchemaInformation(maxAttempts?: number) {
