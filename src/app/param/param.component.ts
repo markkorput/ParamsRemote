@@ -52,7 +52,10 @@ export class ParamComponent implements OnInit {
   /**
    * onUserChange is called whenever user submits a the value
    */
-  onUserChange(path: string, value) {
+  onUserChange(path: string, value: any) {
+    // eager-update our local state
+    this.editValue = value;
+
     // console.log(`onParamChange: ${path} ${value}`)
     if (!this.client) {
       console.warn('No client');
