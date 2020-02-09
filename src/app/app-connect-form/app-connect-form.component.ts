@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { RemoteParamsService } from '../remote-params.service';
 
@@ -10,6 +10,7 @@ import { RemoteParamsService } from '../remote-params.service';
 export class AppConnectFormComponent implements OnInit {
   oscConnectForm: FormGroup;
   websocketsConnectForm: FormGroup;
+  @Output() connectAttempt = new EventEmitter<void>();
 
   constructor(
     private remoteParamsService: RemoteParamsService,
@@ -34,10 +35,12 @@ export class AppConnectFormComponent implements OnInit {
 
   onSubmitOscForm(data) {
     this.remoteParamsService.connectOsc(data.host, data.port);
+    this.connectAttempt.emit();
     // this.connectForm.reset();
   }
 
   onSubmitWebsocketsForm(data) {
     this.remoteParamsService.connectWebsockets(data.host, data.port);
+    this.connectAttempt.emit();
   }
 }

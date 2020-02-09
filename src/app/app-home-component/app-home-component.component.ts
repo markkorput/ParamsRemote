@@ -20,4 +20,9 @@ export class AppHomeComponentComponent implements OnInit {
   toggleShowConnectForm() {
     this.showConnectForm = !this.showConnectForm;
   }
+
+  onConnectAttempt() {
+    console.log('onConnectAttempt');
+    this.showConnectForm = false;
+  }
 }

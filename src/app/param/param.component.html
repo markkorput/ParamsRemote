@@ -1,8 +1,7 @@
-
 <div class="container">
   <div class="row" (mouseenter)="onMouseEnterValue()" (mouseleave)="onMouseLeaveValue()" (click)="onClick()">
-    <div class="col-sm">{{path}}</div>
-    <div class="col-sm">{{editValue}}</div>
+    <div class="col-sm">{{ path }}</div>
+    <div class="col-sm">{{ editValue }}</div>
     <div class="col-sm" [ngClass]="{editing: clickActivated || hoverActivated}">
 
       <div [ngSwitch]="type" >

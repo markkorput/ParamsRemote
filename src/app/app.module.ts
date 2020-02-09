@@ -6,6 +6,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
+import {MatListModule} from '@angular/material/list';
+import {MatGridListModule, MatGridList} from '@angular/material/grid-list';
 
 // import { AppComponent } from './app.component';
 import { AppHomeComponentComponent } from './app-home-component/app-home-component.component';
@@ -27,7 +29,7 @@ import { ParamComponent } from './param/param.component';
     ReactiveFormsModule,
     StorageServiceModule,
     BrowserAnimationsModule,
-    MatSliderModule, MatToolbarModule, MatIconModule
+    MatSliderModule, MatToolbarModule, MatIconModule, MatListModule, MatGridListModule
   ],
   providers: [],
   // bootstrap: [AppComponent]
