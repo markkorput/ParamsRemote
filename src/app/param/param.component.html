@@ -1,14 +1,14 @@
 
 <div class="container">
-  <div class="row" (mouseenter)="onMouseEnterValue()" (mouseleave)="onMouseLeaveValue()">
+  <div class="row" (mouseenter)="onMouseEnterValue()" (mouseleave)="onMouseLeaveValue()" (click)="onClick()">
     <div class="col-sm">{{path}}</div>
     <div class="col-sm">{{editValue}}</div>
-    <div class="col-sm" [ngClass]="{editing: editModeEnabled}">
+    <div class="col-sm" [ngClass]="{editing: clickActivated || hoverActivated}">
 
       <div [ngSwitch]="type" >
         <!-- integer -->
         <div *ngSwitchCase="'i'">
-          <input type="number" [id]="path"
+          <input type="number"
             [ngModel]="editValue"
             (input)="onUserInput(path, $event.target.value)"
             (change)="onUserChange(path, $event.target.value)" />
@@ -16,7 +16,7 @@
 
         <!-- float -->
         <div *ngSwitchCase="'f'">
-          <input type="number" step="0.01" [id]="path"
+          <input type="number" step="0.01"
             [ngModel]="editValue"
             (input)="onUserInput(path, $event.target.value)"
             (change)="onUserChange(path, $event.target.value)" />
@@ -24,18 +24,18 @@
 
         <!-- string -->
         <div *ngSwitchCase="'s'">
-          <input type="text" [id]="path"
+          <input type="text"
             [ngModel]="editValue"
             (input)="onUserInput(path, $event.target.value)"
             (change)="onUserChange(path, $event.target.value)" />
         </div>
 
-        <!-- bool -->
-        <div *ngSwitchCase="'b'">
-          <input type="checkbox" [id]="path"
+        <!-- bool; rounded switch -->
+        <div *ngSwitchCase="'b'" class="switch">
+          <input type="checkbox"
             [ngModel]="editValue"
             (input)="onUserInput(path, $event.target.checked)"
-            (change)="onUserChange(path, $event.target.checked)" />
+            (change)="onUserChange(path, $event.target.checked)"/>
         </div>
 
         <ng-template ngSwitchDefault>Unknown param type ({{type}}) for param: {{path}}</ng-template>
