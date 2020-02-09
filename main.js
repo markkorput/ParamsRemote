@@ -15,7 +15,9 @@ function createWindow () {
       // console.log('interceptFileProtocol', request.url);
       const base = path.join(__dirname, WEB_FOLDER);
       // // Strip protocol
+
       let url = request.url.substr(PROTOCOL.length + 3);
+      console.log(`url-url: ${url}`)
       if (url.startsWith(base)) url = url.replace(base, '');
       // Build complete path for node require function
       url = path.join(base, url);

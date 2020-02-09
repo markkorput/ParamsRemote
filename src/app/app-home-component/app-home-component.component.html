@@ -1,0 +1,11 @@
+<app-connect-form></app-connect-form>
+
+<hr/>
+
+<!-- <div *ngFor="let sessionId of sessionIds">
+  <app-app-session [id]="sessionId"></app-app-session>
+</div> -->
+
+<div *ngFor="let client of remoteParamsService.clients">
+  <app-app-session *ngIf="client" [id]="client.getId()"></app-app-session>
+</div>

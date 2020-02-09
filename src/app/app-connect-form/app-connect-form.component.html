@@ -1,0 +1,31 @@
+<form [formGroup]="connectForm"
+  (ngSubmit)="onSubmitOscForm(connectForm.value)">
+  <h2>OSC</h2>
+  <div>
+    <label for="host">Host</label>
+    <input id="host" type="text" formControlName="host">
+  </div>
+
+  <div>
+    <label for="port">Port</label>
+    <input id="port" type="number" formControlName="port">
+  </div>
+
+  <button class="button" type="submit">Connect</button>
+</form>
+
+<form [formGroup]="websocketsConnectForm"
+  (ngSubmit)="onSubmitWebsocketsForm(websocketsConnectForm.value)">
+  <h2>WebSockets</h2>
+  <div>
+    <label for="host">Host</label>
+    <input id="host" type="text" formControlName="host">
+  </div>
+
+  <div>
+    <label for="port">Port</label>
+    <input id="port" type="number" formControlName="port">
+  </div>
+
+  <button class="button" type="submit">Connect</button>
+</form>
