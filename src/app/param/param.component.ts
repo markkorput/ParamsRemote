@@ -56,7 +56,6 @@ export class ParamComponent implements OnInit {
       console.warn('No client');
       return;
     }
-    this.onNewValueFromServer()
 
     this.client.output.sendValue(path, value);
   }
