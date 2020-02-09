@@ -1,40 +1,66 @@
-<div [ngSwitch]="type">
+<div class="container">
+  <div class="row" (mouseenter)="onMouseEnterValue()" (mouseleave)="onMouseLeaveValue()" (click)="onClick()">
+    <div class="col-sm">{{ path }}</div>
+    <div class="col-sm">{{ editValue }}</div>
+    <div class="col-sm" [ngClass]="{editing: clickActivated || hoverActivated}">
 
-  <!-- integer -->
-  <div *ngSwitchCase="'i'">
-    <label [for]="path">{{path}}</label>
-    <input type="number" [id]="path"
-      [ngModel]="editValue"
-      (input)="onUserInput(path, $event.target.value)"
-      (change)="onUserChange(path, $event.target.value)" />
+      <div [ngSwitch]="type" >
+        <!-- integer -->
+        <div *ngSwitchCase="'i'">
+          <!-- text-field -->
+          <input type="number" step="1"
+            [ngModel]="editValue"
+            (input)="onUserInput(path, $event.target.value)"
+            (change)="onUserChange(path, $event.target.value)" />
+
+          <!-- slider -->
+          <div *ngIf="param.opts['min']!=undefined && param.opts['max']!=undefined">
+            {{param.opts['min']}}
+            <mat-slider
+              [min]="param.opts['min']" [max]="param.opts['max']" [value]="editValue" step="1"
+              (input)="onUserChange(path, $event.value)"
+              (change)="onUserChange(path, $event.value)"></mat-slider>
+            {{param.opts['max']}}
+          </div>
+        </div>
+
+        <!-- float -->
+        <div *ngSwitchCase="'f'">
+          <!-- text-field -->
+          <input type="number" step="0.01"
+            [ngModel]="editValue"
+            (input)="onUserInput(path, $event.target.value)"
+            (change)="onUserChange(path, $event.target.value)" />
+
+          <!-- slider -->
+          <div *ngIf="param.opts['min']!=undefined && param.opts['max']!=undefined">
+            {{param.opts['min']}}
+            <mat-slider
+              [min]="param.opts['min']" [max]="param.opts['max']" [value]="editValue" step="0.01"
+              (input)="onUserChange(path, $event.value)"
+              (change)="onUserChange(path, $event.value)"></mat-slider>
+            {{param.opts['max']}}
+          </div>
+        </div>
+
+        <!-- string -->
+        <div *ngSwitchCase="'s'">
+          <input type="text"
+            [ngModel]="editValue"
+            (input)="onUserInput(path, $event.target.value)"
+            (change)="onUserChange(path, $event.target.value)" />
+        </div>
+
+        <!-- bool; rounded switch -->
+        <div *ngSwitchCase="'b'" class="switch">
+          <input type="checkbox"
+            [ngModel]="editValue"
+            (input)="onUserInput(path, $event.target.checked)"
+            (change)="onUserChange(path, $event.target.checked)"/>
+        </div>
+
+        <ng-template ngSwitchDefault>Unknown param type ({{type}}) for param: {{path}}</ng-template>
+      </div>
+    </div>
   </div>
-
-  <!-- float -->
-  <div *ngSwitchCase="'f'">
-    <label [for]="path">{{path}}</label>
-    <input type="number" step="0.01" [id]="path"
-      [ngModel]="editValue"
-      (input)="onUserInput(path, $event.target.value)"
-      (change)="onUserChange(path, $event.target.value)" />
-  </div>
-
-  <!-- string -->
-  <div *ngSwitchCase="'s'">
-    <label [for]="path">{{path}}</label>
-    <input type="text" [id]="path"
-      [ngModel]="editValue"
-      (input)="onUserInput(path, $event.target.value)"
-      (change)="onUserChange(path, $event.target.value)" />
-  </div>
-
-  <!-- bool -->
-  <div *ngSwitchCase="'b'">
-    <label [for]="path">{{path}}</label>
-    <input type="checkbox" [id]="path"
-      [ngModel]="editValue"
-      (input)="onUserInput(path, $event.target.checked)"
-      (change)="onUserChange(path, $event.target.checked)" />
-  </div>
-
-  <ng-template ngSwitchDefault>Unknown param type ({{type}}) for param: {{path}}</ng-template>
 </div>

@@ -15,6 +15,8 @@ export class ParamComponent implements OnInit {
   type: string;
   value: string;
 
+  clickActivated = false;
+  hoverActivated = false;
   editValue: any = undefined;
 
   constructor(
@@ -50,7 +52,10 @@ export class ParamComponent implements OnInit {
   /**
    * onUserChange is called whenever user submits a the value
    */
-  onUserChange(path: string, value) {
+  onUserChange(path: string, value: any) {
+    // eager-update our local state
+    this.editValue = value;
+
     // console.log(`onParamChange: ${path} ${value}`)
     if (!this.client) {
       console.warn('No client');
@@ -72,5 +77,17 @@ export class ParamComponent implements OnInit {
       // console.log(`onNewValueFromServer (path=${this.path}):`, value);
       this.editValue = value;
     });
+  }
+
+  onMouseEnterValue() {
+    this.hoverActivated = true;
+  }
+
+  onMouseLeaveValue() {
+    this.hoverActivated = false;
+  }
+
+  onClick() {
+    this.clickActivated = (this.clickActivated === false);
   }
 }

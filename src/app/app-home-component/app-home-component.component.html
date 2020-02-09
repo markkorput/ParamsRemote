@@ -1,10 +1,13 @@
-<app-connect-form></app-connect-form>
+<mat-toolbar color="primary">
+  <!-- Title -->
+  <span>Params Remote</span>
+  <span class="spacer"></span>
+  <mat-icon class="icon add" (click)="toggleShowConnectForm()" aria-hidden="false" aria-label="Toggle new connection forms" title="add connection">add</mat-icon>
+</mat-toolbar>
 
-<hr/>
-
-<!-- <div *ngFor="let sessionId of sessionIds">
-  <app-app-session [id]="sessionId"></app-app-session>
-</div> -->
+<div *ngIf="this.showConnectForm" id="connect-forms-container">
+  <app-connect-form (connectAttempt)="onConnectAttempt()"></app-connect-form>
+</div>
 
 <div *ngFor="let client of remoteParamsService.clients">
   <app-app-session *ngIf="client" [id]="client.getId()"></app-app-session>

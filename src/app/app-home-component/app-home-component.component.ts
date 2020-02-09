@@ -7,12 +7,22 @@ import { RemoteParamsService } from '../remote-params.service';
   styleUrls: ['./app-home-component.component.scss']
 })
 export class AppHomeComponentComponent implements OnInit {
-  sessionIds: string[];
+  showConnectForm = true;
 
   constructor(
     private remoteParamsService: RemoteParamsService
   ) { }
 
   ngOnInit() {
+    this.showConnectForm = this.remoteParamsService.clients.length == 0;
+  }
+
+  toggleShowConnectForm() {
+    this.showConnectForm = !this.showConnectForm;
+  }
+
+  onConnectAttempt() {
+    console.log('onConnectAttempt');
+    this.showConnectForm = false;
   }
 }

@@ -96,10 +96,10 @@ export class Params {
 }
 
 export class Schema {
-  data: {path: string, type: string, value?: any}[] = [];
+  data: {path: string, type: string, value?: any, opts?: {min?: any, max?: any}}[] = [];
 
-  constructor(data?: {path: string, type: string, value?: any}[]) {
-    this.data = data || [];
+  constructor(data?: {path: string, type: string, value?: any, opts?: {min?: any, max?: any}}[]) {
+    this.data= data || [];
   }
 
   applyTo(params: Params): void {
@@ -120,7 +120,7 @@ export class Schema {
     this.data.forEach(item => {
       // already exists?
       if (!params.get(item.path)) {
-        const p = new Param(item.path, item.type, item.value, {});
+        const p = new Param(item.path, item.type, item.value, item.opts || {});
         adds.push(p);
       }
     });
@@ -189,7 +189,7 @@ class WebsocketsOutputInterface extends OutputInterface {
       return;
     }
 
-    console.log(`Sending websocket schema request: ${WebsocketsOutputInterface.SCHEMA_REQUEST}`)
+    // console.log(`Sending websocket schema request: ${WebsocketsOutputInterface.SCHEMA_REQUEST}`)
     this.socket.send(WebsocketsOutputInterface.SCHEMA_REQUEST);
   }
 
@@ -210,7 +210,7 @@ class WebsocketsOutputInterface extends OutputInterface {
     }
 
     const msg = `POST ${path}?value=${value}`;
-    console.log(`Sending websocket value: ${msg}`);
+    // console.log(`Sending websocket value: ${msg}`);
     this.socket.send(msg);
   }
 
@@ -241,7 +241,8 @@ class WebsocketsInputInterface extends InputInterface {
     // console.log(`onMessage: ${data}`);
 
     if (data.startsWith(WebsocketsInputInterface.schemaPrefix)) {
-      console.log('Received schema data');
+      // console.log('Received schema data');
+      // console.log(data);
       const jsonText = data.substr(WebsocketsInputInterface.schemaPrefix.length);
       const jsonData = JSON.parse(jsonText);
       this.schema.emit(jsonData);
@@ -249,12 +250,11 @@ class WebsocketsInputInterface extends InputInterface {
 
     // POST <param-path>?value=<value>
     if (data.startsWith('POST ') && data.indexOf('?value=') > -1) {
-      console.log('got  value: ', data);
+      // console.log('got  value: ', data);
       const parts = data.substr('POST '.length).split('?value=');
       const path: string = parts[0];
       const value: any = parts[1];
       this.value.emit([path, value]);
-
     }
   }
 }
@@ -438,6 +438,7 @@ export class RemoteParamsService {
   clients: Client[] = []; // will contain <sessionId>:<remote_params_client> pairs
   onConnect = new EventEmitter();
   onDisconnect = new EventEmitter();
+  allowDuplicates = true;
   localValues = {};
 
   constructor(
@@ -449,7 +450,7 @@ export class RemoteParamsService {
   connect(client: Client) {
     const sessionId = client.getId();
 
-    if (this._getClient(sessionId)) {
+    if (!this.allowDuplicates && this._getClient(sessionId)) {
       console.log(`Already found a session with id ${sessionId}`);
       return this.clients[sessionId];
     }
