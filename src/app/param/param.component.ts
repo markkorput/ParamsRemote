@@ -35,6 +35,10 @@ export class ParamComponent implements OnInit {
     });
   }
 
+  /**
+   * onUserInput is called whenever user starts editing the value
+   * It will call onUserChange IF live-updates are enabled (using this.liveUpdate)
+   */
   onUserInput(path: string, value: any) {
     // console.log(`onParamInput: ${path} ${value}`)
 
@@ -43,6 +47,9 @@ export class ParamComponent implements OnInit {
     }
   }
 
+  /**
+   * onUserChange is called whenever user submits a the value
+   */
   onUserChange(path: string, value) {
     // console.log(`onParamChange: ${path} ${value}`)
     if (!this.client) {
@@ -53,6 +60,10 @@ export class ParamComponent implements OnInit {
     this.client.output.sendValue(path, value);
   }
 
+  /**
+   * onNewValueFromServer is called whenever a new value is received
+   * an takes care of updating to show the updated value.
+   */
   onNewValueFromServer(value: any) {
     // this function is called from an external event, we need to explicitly
     // execute inside the angular zone, otherwise attrtibute changes
