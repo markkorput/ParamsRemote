@@ -8,6 +8,11 @@
       <div [ngSwitch]="type" >
         <!-- integer -->
         <div *ngSwitchCase="'i'">
+          <!-- text-field -->
+          <input type="number" step="1"
+            [ngModel]="editValue"
+            (input)="onUserInput(path, $event.target.value)"
+            (change)="onUserChange(path, $event.target.value)" />
 
           <!-- slider -->
           <div *ngIf="param.opts['min']!=undefined && param.opts['max']!=undefined">
@@ -18,17 +23,16 @@
               (change)="onUserChange(path, $event.value)"></mat-slider>
             {{param.opts['max']}}
           </div>
-
-          <!-- text-field -->
-          <input *ngIf="param.opts['min']==undefined || param.opts['max']==undefined"
-            type="number" step="1"
-            [ngModel]="editValue"
-            (input)="onUserInput(path, $event.target.value)"
-            (change)="onUserChange(path, $event.target.value)" />
         </div>
 
         <!-- float -->
         <div *ngSwitchCase="'f'">
+          <!-- text-field -->
+          <input type="number" step="0.01"
+            [ngModel]="editValue"
+            (input)="onUserChange(path, $event.target.value)"
+            (change)="onUserChange(path, $event.target.value)" />
+
           <!-- slider -->
           <div *ngIf="param.opts['min']!=undefined && param.opts['max']!=undefined">
             {{param.opts['min']}}
@@ -38,13 +42,6 @@
               (change)="onUserChange(path, $event.value)"></mat-slider>
             {{param.opts['max']}}
           </div>
-
-          <!-- text-field -->
-          <input *ngIf="param.opts['min']==undefined || param.opts['max']==undefined"
-            type="number" step="0.01"
-            [ngModel]="editValue"
-            (input)="onUserChange(path, $event.target.value)"
-            (change)="onUserChange(path, $event.target.value)" />
         </div>
 
         <!-- string -->
