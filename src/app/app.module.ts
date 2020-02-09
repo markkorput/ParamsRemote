@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StorageServiceModule} from 'angular-webstorage-service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import {MatIconModule} from '@angular/material/icon';
 
 // import { AppComponent } from './app.component';
 import { AppHomeComponentComponent } from './app-home-component/app-home-component.component';
@@ -25,7 +27,7 @@ import { ParamComponent } from './param/param.component';
     ReactiveFormsModule,
     StorageServiceModule,
     BrowserAnimationsModule,
-    MatSliderModule
+    MatSliderModule, MatToolbarModule, MatIconModule
   ],
   providers: [],
   // bootstrap: [AppComponent]
