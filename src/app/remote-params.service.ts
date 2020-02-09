@@ -438,6 +438,7 @@ export class RemoteParamsService {
   clients: Client[] = []; // will contain <sessionId>:<remote_params_client> pairs
   onConnect = new EventEmitter();
   onDisconnect = new EventEmitter();
+  allowDuplicates = true;
   localValues = {};
 
   constructor(
@@ -449,7 +450,7 @@ export class RemoteParamsService {
   connect(client: Client) {
     const sessionId = client.getId();
 
-    if (this._getClient(sessionId)) {
+    if (!this.allowDuplicates && this._getClient(sessionId)) {
       console.log(`Already found a session with id ${sessionId}`);
       return this.clients[sessionId];
     }

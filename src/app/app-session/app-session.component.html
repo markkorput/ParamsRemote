@@ -1,17 +1,30 @@
-<header>
-  <h1>{{ id }}</h1>
-  <button (click)="disconnect()">disconnect</button>
-  <button (click)="refresh()">refresh</button>
-</header>
-<main>
-  <ul *ngIf="getParams() | async as params;">
-    <li *ngFor="let param of params">
+<nav class="navbar navbar-expand-md bg-secondary navbar-dark">
+  <!-- Title -->
+  <a class="navbar-brand" href="#">{{ id }}</a>
+
+  <!-- Sandwich Button -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse"
+    aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Menu -->
+  <div class="collapse navbar-collapse" id="navbarCollapse">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item">
+        <a class="nav-link"  (click)="disconnect();">disconnect</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"  (click)="refresh();">refresh</a>
+      </li>
+
+    </ul>
+  </div>
+</nav>
+
+<ul *ngIf="getParams() | async as params;" class="list-group">
+  <li *ngFor="let param of params" class="list-group-item list-group-item-action">
       <app-param [client]="client" [param]="param"></app-param>
-    </li>
-  </ul>
-
-  <p *ngIf="noParams()">
-    Loading schema...
-  </p>
-</main>
-
+  </li>
+</ul>

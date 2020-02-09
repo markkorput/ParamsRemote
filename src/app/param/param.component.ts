@@ -15,6 +15,7 @@ export class ParamComponent implements OnInit {
   type: string;
   value: string;
 
+  editModeEnabled = false;
   editValue: any = undefined;
 
   constructor(
@@ -73,4 +74,15 @@ export class ParamComponent implements OnInit {
       this.editValue = value;
     });
   }
+
+  onMouseEnterValue() {
+    this.editModeEnabled = true;
+    // console.log(`enter: ${this.path}`);
+  }
+
+  onMouseLeaveValue() {
+    this.editModeEnabled = false;
+    // console.log(`leave: ${this.path}`);
+  }
+
 }

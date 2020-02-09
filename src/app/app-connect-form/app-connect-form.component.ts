@@ -8,7 +8,7 @@ import { RemoteParamsService } from '../remote-params.service';
   styleUrls: ['./app-connect-form.component.scss']
 })
 export class AppConnectFormComponent implements OnInit {
-  connectForm: FormGroup;
+  oscConnectForm: FormGroup;
   websocketsConnectForm: FormGroup;
 
   constructor(
@@ -17,7 +17,7 @@ export class AppConnectFormComponent implements OnInit {
   ) {
     this.formBuilder = new FormBuilder();
 
-    this.connectForm = this.formBuilder.group({
+    this.oscConnectForm = this.formBuilder.group({
       host: '',
       port: 8000
     });
