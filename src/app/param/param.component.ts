@@ -56,13 +56,14 @@ export class ParamComponent implements OnInit {
       console.warn('No client');
       return;
     }
+    this.onNewValueFromServer()
 
     this.client.output.sendValue(path, value);
   }
 
   /**
    * onNewValueFromServer is called whenever a new value is received
-   * an takes care of updating to show the updated value.
+   * an takes care of updating the UI to show the new value.
    */
   onNewValueFromServer(value: any) {
     // this function is called from an external event, we need to explicitly
