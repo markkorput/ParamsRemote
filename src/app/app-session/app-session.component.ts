@@ -12,6 +12,7 @@ import { Observable, of } from 'rxjs';
 export class AppSessionComponent implements OnInit {
   client: Client = undefined;
   params: Param[] = [];
+  showSettings = false;
 
   @Input() id: string;
   @Input() liveUpdate = false;
@@ -38,6 +39,10 @@ export class AppSessionComponent implements OnInit {
 
   refresh() {
     this.client.output.requestSchema();
+  }
+
+  toggleSettings() {
+    this.showSettings = !this.showSettings;
   }
 
   getParams(): Observable<Param[]> {
