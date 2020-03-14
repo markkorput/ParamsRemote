@@ -9,6 +9,10 @@
 <ul *ngIf="getParams() | async as params;" class="list-group">
   <li *ngIf="showSettings" class="list-group-item settings">
     TODO: show settings | checkbox: persist view state (collapses etc.) | checkbox: persist values
+    <input type="checkbox"
+      [ngModel]="settings.persistView !== false"
+      (change)="onSettingsPersistViewChange($event.target.checked)"/>
+
   </li>
   
   <li *ngFor="let param of params" class="list-group-item list-group-item-action">
