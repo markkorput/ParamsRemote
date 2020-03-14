@@ -18,7 +18,7 @@ export class Param {
     this.opts = opts || {};
 
     if (this.type === 'b') { // boolean
-      this.setter = (v) => v !== false && v !== 0 && v !== 'false' && v !== 'False'
+      this.setter = (v) => String(v).toLowerCase() !== 'false' && String(v).toLowerCase() !== '0';
     }
   }
 
