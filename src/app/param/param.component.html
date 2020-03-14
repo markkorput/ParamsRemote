@@ -54,13 +54,20 @@
             (change)="onUserChange(path, $event.target.value)" />
         </div>
 
-        <!-- bool; rounded switch -->
+        <!-- bool -->
         <div *ngSwitchCase="'b'" class="switch">
           <input type="checkbox"
             [ngModel]="editValue"
             (input)="onUserInput(path, $event.target.checked)"
             (change)="onUserChange(path, $event.target.checked)"/>
         </div>
+        
+        <!-- void (signal)  -->
+        <div *ngSwitchCase="'v'" class="switch">
+          <button
+            (click)="onUserChange(path, null)">{{ path.split('/').pop() }}</button>
+        </div>
+
 
         <ng-template ngSwitchDefault>Unknown param type ({{type}}) for param: {{path}}</ng-template>
       </div>
