@@ -54,7 +54,7 @@ export class ParamComponent implements OnInit {
         });
       } else {
         console.error('No param given to ParamComponent!');
-        this.path = 'NO_PARAM'
+        this.path = 'NO_PARAM';
         this.value = null;
         this.type = 'v';
         this.editValue = this.value;
