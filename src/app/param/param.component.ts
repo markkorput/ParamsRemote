@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, NgZone } from '@angular/core';
-import { RemoteParamsService, Param, Client } from '../remote-params.service';
+import { Component, OnInit, Input, Output, NgZone, EventEmitter } from '@angular/core';
+import { RemoteParamsService, Client } from '../remote-params.service';
 
 @Component({
   selector: 'app-param',
@@ -7,13 +7,18 @@ import { RemoteParamsService, Param, Client } from '../remote-params.service';
   styleUrls: ['./param.component.scss']
 })
 export class ParamComponent implements OnInit {
-  @Input() client: Client;
-  @Input() param: Param;
+  // @Input() client: Client;
+  @Input() sessionId: string;
+  @Input() paramId: string;
+  // @Input() param: Param;
   @Input() liveUpdate = false;
+  @Output() collapsePath = new EventEmitter<string>();
 
+  client: Client;
   path: string;
   type: string;
   value: string;
+  opts: {};
 
   clickActivated = false;
   hoverActivated = false;
@@ -25,15 +30,36 @@ export class ParamComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.path = this.param.path;
-    this.value = this.param.value;
-    this.type = this.param.type;
-    this.editValue = this.param.value;
 
-    // register callback for when receiving new values from server
-    // (which are applied  to our param)
-    this.param.valueChange.subscribe(value => {
-      this.onNewValueFromServer(value);
+    this.remoteParamsService.getClient(this.sessionId).subscribe((c) => {
+      this.client = c;
+      // this.client.params.schemaChange.subscribe(() => {
+      //   this._initNewParams(this.client.params);
+      // });
+
+      // this._initNewParams(this.client.params);
+      const param = this.client.params.get(this.paramId);
+
+      if (param) {
+        this.path = param.path;
+        this.value = param.value;
+        this.type = param.type;
+        this.editValue = param.value;
+        this.opts = param.opts;
+
+        // register callback for when receiving new values from server
+        // (which are applied  to our param)
+        param.valueChange.subscribe(value => {
+          this.onNewValueFromServer(value);
+        });
+      } else {
+        console.error('No param given to ParamComponent!');
+        this.path = 'NO_PARAM'
+        this.value = null;
+        this.type = 'v';
+        this.editValue = this.value;
+        this.opts = {};
+      }
     });
   }
 
@@ -89,5 +115,22 @@ export class ParamComponent implements OnInit {
 
   onClick() {
     this.clickActivated = (this.clickActivated === false);
+  }
+
+  pathParts(): {name: string, action: () => void}[] {
+    const p = this.path.startsWith('/') ? this.path.slice(1) : this.path;
+    const pieces = p.split('/');
+    const parts = pieces.map((piece, idx) => ({name: piece, action: () => this.togglePathPart(idx)}));
+    return parts;
+  }
+
+  togglePathPart(partIdx: number) {
+    // console.log(`togglePathPart: ${partIdx}`);
+    const startSlash = this.path.startsWith('/');
+    const p = startSlash ? this.path.slice(1) : this.path;
+    const pieces = p.split('/');
+    const path = (startSlash ? '/' : '') + pieces.slice(0, partIdx + 1).join('/');
+    // console.log(`emitting collapsePath event: ${path}`);
+    this.collapsePath.emit(path);
   }
 }

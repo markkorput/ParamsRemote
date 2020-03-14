@@ -1,6 +1,9 @@
 <div class="container">
   <div class="row" (mouseenter)="onMouseEnterValue()" (mouseleave)="onMouseLeaveValue()" (click)="onClick()">
-    <div class="col-sm">{{ path }}</div>
+    <div class="col-sm">
+      <!-- {{ path }} -->
+      <a *ngFor="let pathpart of pathParts()" class="pathpart" href="#" (click)="pathpart.action()">/{{ pathpart.name }} </a>
+    </div>
     <div class="col-sm">{{ editValue }}</div>
     <div class="col-sm" [ngClass]="{editing: clickActivated || hoverActivated}">
 
@@ -14,13 +17,13 @@
             (change)="onUserChange(path, $event.target.value)" />
 
           <!-- slider -->
-          <div *ngIf="param.opts['min']!=undefined && param.opts['max']!=undefined">
-            {{param.opts['min']}}
+          <div *ngIf="opts['min']!=undefined && opts['max']!=undefined">
+            {{opts['min']}}
             <mat-slider
-              [min]="param.opts['min']" [max]="param.opts['max']" [value]="editValue" step="1"
+              [min]="opts['min']" [max]="opts['max']" [value]="editValue" step="1"
               (input)="onUserChange(path, $event.value)"
               (change)="onUserChange(path, $event.value)"></mat-slider>
-            {{param.opts['max']}}
+            {{opts['max']}}
           </div>
         </div>
 
@@ -33,13 +36,13 @@
             (change)="onUserChange(path, $event.target.value)" />
 
           <!-- slider -->
-          <div *ngIf="param.opts['min']!=undefined && param.opts['max']!=undefined">
-            {{param.opts['min']}}
+          <div *ngIf="opts['min']!=undefined && opts['max']!=undefined">
+            {{opts['min']}}
             <mat-slider
-              [min]="param.opts['min']" [max]="param.opts['max']" [value]="editValue" step="0.01"
+              [min]="opts['min']" [max]="opts['max']" [value]="editValue" step="0.01"
               (input)="onUserChange(path, $event.value)"
               (change)="onUserChange(path, $event.value)"></mat-slider>
-            {{param.opts['max']}}
+            {{opts['max']}}
           </div>
         </div>
 

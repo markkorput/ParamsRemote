@@ -6,16 +6,19 @@
   <mat-icon class="icon disconnect" (click)="disconnect()" aria-hidden="false" aria-label="Disconnect" title="disconnect">delete</mat-icon>
 </mat-toolbar>
 
-<ul *ngIf="getParams() | async as params;" class="list-group">
-  <li *ngIf="showSettings" class="list-group-item settings">
-    TODO: show settings | checkbox: persist view state (collapses etc.) | checkbox: persist values
-    <input type="checkbox"
-      [ngModel]="settings.persistView !== false"
-      (change)="onSettingsPersistViewChange($event.target.checked)"/>
+<div *ngIf="showSettings" class="list-group-item settings">
+  <input type="checkbox"
+    [ngModel]="settings.persistView !== false"
+    (change)="onSettingsPersistViewChange($event.target.checked)"/>
+</div>
 
-  </li>
-  
-  <li *ngFor="let param of params" class="list-group-item list-group-item-action">
-      <app-param [client]="client" [param]="param"></app-param>
+<ul class="list-group">
+  <li *ngFor="let line of lines" class="list-group-item list-group-item-action">
+  <!-- <li *ngFor="let line of getLines(params)" class="list-group-item list-group-item-action"> -->
+    <app-param *ngIf="line.param" [sessionId]="id" [paramId]="line.param.path" (collapsePath)="collapsePath($event)"></app-param>
+    <a *ngIf="line.path" href="#" (click)="expandPath(line.path)">[collapsed] {{ line.path }}</a>
+
+    <!-- <p *ngIf="line.param">{{ line.param.path }}</p> -->
+    <!-- <p *ngIf="line.param" (click)="collapsePath(line.param.path)">Param: {{ line.param.path }}</p>     -->
   </li>
 </ul>

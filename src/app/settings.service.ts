@@ -20,7 +20,7 @@ export class SettingsService {
   }
 
   setSessionSettings(sessionId: string, settings: object): void {
-    console.log(`setSessionSettings for ${sessionId}`);
+    console.log(`setSessionSettings for ${sessionId}: ${settings}`);
     if (settings === null) {
       this.storage.remove(this.storageId(sessionId));
     } else {
