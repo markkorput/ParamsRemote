@@ -7,6 +7,7 @@ export class Param {
   type: string;
   value: any;
   opts: object;
+  setter: (arg0: any) => any = undefined;
 
   valueChange = new EventEmitter();
 
@@ -15,11 +16,16 @@ export class Param {
     this.type = type;
     this.value = value;
     this.opts = opts || {};
+
+    if (this.type === 'b') { // boolean
+      this.setter = (v) => String(v).toLowerCase() !== 'false' && String(v).toLowerCase() !== '0';
+    }
   }
 
   set(value: any): void {
-    if (this.value !== value) {
-      this.value = value;
+    const val = this.setter ? this.setter(value) : value;
+    if (this.value !== val) {
+      this.value = val;
       this.valueChange.emit(this.value);
     }
   }

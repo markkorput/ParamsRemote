@@ -1,12 +1,24 @@
 <mat-toolbar>
   <span>{{ id }}</span>
   <span class="spacer"></span>
+  <mat-icon class="icon settings" (click)="toggleSettings()" aria-hidden="false" aria-label="Settings" title="settings">settings</mat-icon>
   <mat-icon class="icon refresh" (click)="refresh()" aria-hidden="false" aria-label="Refresh" title="refresh">autorenew</mat-icon>
   <mat-icon class="icon disconnect" (click)="disconnect()" aria-hidden="false" aria-label="Disconnect" title="disconnect">delete</mat-icon>
 </mat-toolbar>
 
-<ul *ngIf="getParams() | async as params;" class="list-group">
-  <li *ngFor="let param of params" class="list-group-item list-group-item-action">
-      <app-param [client]="client" [param]="param"></app-param>
+<div *ngIf="showSettings" class="list-group-item settings">
+  <input type="checkbox"
+    [ngModel]="settings.persistView !== false"
+    (change)="onSettingsPersistViewChange($event.target.checked)"/>
+</div>
+
+<ul class="list-group">
+  <li *ngFor="let line of lines" class="list-group-item list-group-item-action">
+  <!-- <li *ngFor="let line of getLines(params)" class="list-group-item list-group-item-action"> -->
+    <app-param *ngIf="line.param" [sessionId]="id" [paramId]="line.param.path" (collapsePath)="collapsePath($event)"></app-param>
+    <a *ngIf="line.path" href="#" (click)="expandPath(line.path)">[collapsed] {{ line.path }}</a>
+
+    <!-- <p *ngIf="line.param">{{ line.param.path }}</p> -->
+    <!-- <p *ngIf="line.param" (click)="collapsePath(line.param.path)">Param: {{ line.param.path }}</p>     -->
   </li>
 </ul>
