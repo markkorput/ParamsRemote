@@ -10,12 +10,23 @@
   <input type="checkbox"
     [ngModel]="settings.persistView !== false"
     (change)="onSettingsPersistViewChange($event.target.checked)"/>
+  Persist View
+
+  <input type="checkbox"
+    [ngModel]="settings.restoreValuesEnabled === true"
+    (change)="setSettingsRestoreValuesEnabled($event.target.checked)"/>
+  Restore Values
+
+  <!-- <button
+    (click)="restoreValues()">restore values</button> -->
 </div>
 
 <ul class="list-group">
   <li *ngFor="let line of lines" class="list-group-item list-group-item-action">
   <!-- <li *ngFor="let line of getLines(params)" class="list-group-item list-group-item-action"> -->
-    <app-param *ngIf="line.param" [sessionId]="id" [paramId]="line.param.path" (collapsePath)="collapsePath($event)"></app-param>
+    <app-param *ngIf="line.param" [sessionId]="id" [paramId]="line.param.path"
+      (collapsePath)="collapsePath($event)"
+      (changeEvent)="onParamChange()"></app-param>
     <a *ngIf="line.path" href="#" (click)="expandPath(line.path)">[collapsed] {{ line.path }}</a>
 
     <!-- <p *ngIf="line.param">{{ line.param.path }}</p> -->

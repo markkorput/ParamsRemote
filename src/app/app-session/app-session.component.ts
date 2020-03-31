@@ -13,9 +13,9 @@ import { map, distinct } from 'rxjs/operators';
 export class AppSessionComponent implements OnInit {
   client: Client = undefined;
   showSettings = false;
-  settings: {persistView?: boolean, collapsedPaths?: string[]} = {};
-  params: Param[] = [];
+  settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object} = {};
   lines: {param?: Param, path?: string}[] = [];
+  updateRestoreValuesTimeout: NodeJS.Timer = undefined;
 
   @Input() id: string;
   @Input() liveUpdate = false;
@@ -31,8 +31,13 @@ export class AppSessionComponent implements OnInit {
 
     this.remoteParamsService.getClient(this.id).subscribe((c) => {
       this.client = c;
+
       this.client.params.schemaChange.subscribe(() => {
         this._initNewParams(this.client.params);
+
+        if (this.settings.restoreValuesEnabled && this.settings.restoreValues) {
+          this.restoreValues();
+        }
       });
 
       this._initNewParams(this.client.params);
@@ -44,10 +49,7 @@ export class AppSessionComponent implements OnInit {
     // execute inside the angular zone, otherwise attrtibute changes
     // are not detected
     this.ngZone.runGuarded(() => {
-      this.params = params.params;
-      // const ofparams = of(this.params);
-      // this.ofLines = this.getLines(this.ofparams);
-      this.lines = this.getLines(this.params);
+      this.lines = this.getLines(params.params);
     });
   }
 
@@ -64,9 +66,21 @@ export class AppSessionComponent implements OnInit {
     this.showSettings = !this.showSettings;
   }
 
-  onSettingsPersistViewChange(val: boolean): void {
-    this.settings = {...this.settings, ...{persistView: val}};
+  setSettings(settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object}): void {
+    this.settings = settings;
     this.settingsService.setSessionSettings(this.id, this.settings);
+  }
+
+  onSettingsPersistViewChange(val: boolean): void {
+    this.setSettings({...this.settings, ...{persistView: val}});
+  }
+
+  setSettingsRestoreValuesEnabled(val: boolean): void {
+    this.setSettings({...this.settings, ...{restoreValuesEnabled: val}});
+
+    if (val) {
+      this.updateRestoreValues();
+    }
   }
 
   collapsePath(path: string) {
@@ -110,5 +124,34 @@ export class AppSessionComponent implements OnInit {
 
       return null;
     }).filter((v) => v !== null);
+  }
+
+  // restore values
+  onParamChange() {
+    if (this.settings.restoreValuesEnabled !== true) { return; }
+
+    if (this.updateRestoreValuesTimeout) {
+      clearTimeout(this.updateRestoreValuesTimeout);
+    }
+
+    this.updateRestoreValuesTimeout = setTimeout(() => {
+      this.updateRestoreValuesTimeout = undefined;
+      this.updateRestoreValues();
+    }, 500);
+  }
+
+  updateRestoreValues() {
+    if (this.client === undefined) {
+      console.log(`updateRestoreValues: no client`);
+      return;
+    }
+
+    const values = this.client.params.getValues();
+    this.setSettings({...this.settings, ...{restoreValues: values}});
+    console.log(`updateRestoreValues: ${values}`);
+  }
+
+  restoreValues() {
+    this.client.output.sendValues(this.settings.restoreValues);
   }
 }

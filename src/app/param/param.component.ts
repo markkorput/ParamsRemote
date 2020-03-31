@@ -13,6 +13,7 @@ export class ParamComponent implements OnInit {
   // @Input() param: Param;
   @Input() liveUpdate = false;
   @Output() collapsePath = new EventEmitter<string>();
+  @Output() changeEvent = new EventEmitter<ParamComponent>();
 
   client: Client;
   path: string;
@@ -89,6 +90,7 @@ export class ParamComponent implements OnInit {
     }
 
     this.client.output.sendValue(path, value);
+    this.changeEvent.emit(this);
   }
 
   /**

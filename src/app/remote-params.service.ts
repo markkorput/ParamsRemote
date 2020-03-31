@@ -96,7 +96,9 @@ export class Params {
 
   getValues(): object {
     const result = {};
-    this.params.forEach(p => result[p.path] = p.value);
+    this.params.forEach(p => {
+      if (p.type !== 'v') { result[p.path] = p.value; }
+    });
     return result;
   }
 }
@@ -149,6 +151,12 @@ abstract class OutputInterface {
   abstract confirm(): void;
   abstract sendValue(path: string, value: any): void;
   abstract disconnect(): void;
+
+  sendValues(values: object): void {
+    Object.keys(values).forEach(key => {
+      this.sendValue(key, values[key]);
+    });
+  }
 }
 
 class InputInterface {
@@ -210,6 +218,7 @@ class WebsocketsOutputInterface extends OutputInterface {
   }
 
   sendValue(path: string, value: any): void {
+    console.log('send value', value);
     if (this.socket === null) {
       console.warn(`no socket, can't send value: ${path} = ${value}`);
       return;
