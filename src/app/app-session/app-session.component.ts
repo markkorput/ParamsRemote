@@ -15,7 +15,7 @@ export class AppSessionComponent implements OnInit {
   showSettings = false;
   settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object} = {};
   lines: {param?: Param, path?: string}[] = [];
-  updateRestoreValuesTimeout: NodeJS.Timer = undefined;
+  updateRestoreValuesTimeout: any = undefined;
 
   @Input() id: string;
   @Input() liveUpdate = false;

@@ -25,11 +25,15 @@
 </div>
 
 <ul class="list-group">
-  <li *ngFor="let line of lines" class="list-group-item list-group-item-action">
+  <li *ngFor="let line of lines" [class.collapse_placeholder]="line.path !== undefined" class="list-group-item list-group-item-action"> 
   <!-- <li *ngFor="let line of getLines(params)" class="list-group-item list-group-item-action"> -->
+
+    <!-- A param line -->
     <app-param *ngIf="line.param" [sessionId]="id" [paramId]="line.param.path"
       (collapsePath)="collapsePath($event)"
       (changeEvent)="onParamChange()"></app-param>
+    
+    <!-- A "collapsed group" line -->
     <a *ngIf="line.path" href="#" (click)="expandPath(line.path)">[collapsed] {{ line.path }}</a>
 
     <!-- <p *ngIf="line.param">{{ line.param.path }}</p> -->
