@@ -4,4 +4,10 @@ main > ul > li { margin: 0 0 10px 0;}
 .spacer { flex: 1 1 auto; }
 .icon { padding: 0 35px 0 15px; cursor: pointer; }
 
+.icon.connected  {
+  color: green;
+}
 
+.icon.disconnected  {
+  color: red;
+}

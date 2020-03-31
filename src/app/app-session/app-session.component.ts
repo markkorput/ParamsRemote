@@ -58,6 +58,10 @@ export class AppSessionComponent implements OnInit {
     this.settingsService.setSessionSettings(this.id, null); // remove settings
   }
 
+  isConnected() {
+    return this.client && this.client.isConnected();
+  }
+
   refresh() {
     this.client.output.requestSchema();
   }

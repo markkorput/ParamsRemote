@@ -182,6 +182,10 @@ export class Client {
 
   disconnect() {
   }
+
+  isConnected() {
+
+  }
 }
 
 //
@@ -325,6 +329,10 @@ export class WebsocketsClient extends Client {
     }
   }
 
+  isConnected() {
+    return this.socket !== null;
+  }
+
   setupInterfaces(socket: WebSocket): void {
     this.input = new WebsocketsInputInterface(socket); // dummy interface without socket
     this.output = new WebsocketsOutputInterface(socket); // dummy interface without socket
@@ -439,6 +447,10 @@ export class OscClient extends Client {
     this.id = `${OscClient.idprefix}${host}:${port}`;
     this.output = new OscOutputInterface(host, port);
     // this.input = new OscInputInterface(port);
+  }
+
+  isConnected() {
+    return true;
   }
 }
 
