@@ -31,7 +31,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.gui = new dat.GUI({autoPlace: false, hideable: false});
+    this.gui = new dat.GUI({autoPlace: false, hideable: false, width: 'auto'});
     const gui = this.gui;
 
     const FizzyText = function() {
