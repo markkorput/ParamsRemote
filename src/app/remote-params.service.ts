@@ -3,10 +3,14 @@ import {LOCAL_STORAGE, WebStorageService} from 'angular-webstorage-service';
 import { Observable, of, throwError } from 'rxjs';
 
 export class Param {
+  OPT_MIN = 'min';
+  OPT_MAX = 'max';
+  OPT_DEFAULT = 'default';
+
   path: string;
   type: string;
   value: any;
-  opts: object;
+  opts: {};
   setter: (arg0: any) => any = undefined;
 
   valueChange = new EventEmitter();
@@ -29,6 +33,8 @@ export class Param {
       this.valueChange.emit(this.value);
     }
   }
+
+  getMin() { return }
 }
 
 export class Params {
