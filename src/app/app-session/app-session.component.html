@@ -10,6 +10,20 @@
 </mat-toolbar>
 
 <div *ngIf="showSettings" class="list-group-item settings">
+  Style: 
+  <select id="style" [value]="settings.style || 'ParamsRemote'" (change)="setStyle($event.target.value)">
+    <option *ngFor="let style of ['dat.GUI', 'ParamsRemote']" [value]="style">
+      {{ style }}
+    </option>
+  </select>
+
+  <!-- <mat-label>Style</mat-label> -->
+<!-- 
+  <mat-select>
+    <mat-option *ngFor="let style of ['dat.GUI', 'ParamsRemote']" [value]="settings.style || 'ParamsRemote'">
+      {{ style }}
+    </mat-option>
+  </mat-select> -->
   <input type="checkbox"
     [ngModel]="settings.persistView !== false"
     (change)="onSettingsPersistViewChange($event.target.checked)"/>
@@ -24,7 +38,10 @@
     (click)="restoreValues()">restore values</button> -->
 </div>
 
-<ul class="list-group">
+<app-dat-gui-params *ngIf="settings.style==='dat.GUI'" [sessionId]="id">
+</app-dat-gui-params>
+
+<ul class="list-group" *ngIf="settings.style==='ParamsRemote'">
   <li *ngFor="let line of lines" [class.collapse_placeholder]="line.path !== undefined" class="list-group-item list-group-item-action"> 
   <!-- <li *ngFor="let line of getLines(params)" class="list-group-item list-group-item-action"> -->
 
