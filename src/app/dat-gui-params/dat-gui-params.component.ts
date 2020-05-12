@@ -2,6 +2,16 @@ import { Component, OnInit, Input, NgZone, ViewChild, AfterViewInit, ElementRef 
 import { RemoteParamsService, Client, Params, Param } from '../remote-params.service';
 import * as dat from 'dat.gui';
 
+function Proxy(p: Param): void {
+  this.value = p.type !== 'v' ? p.getValue() : () => {};
+
+  p.valueChange.subscribe(newValue => {
+    if (p.type !== 'v') {
+      this.value = newValue;
+    }
+  });
+}
+
 @Component({
   selector: 'app-dat-gui-params',
   templateUrl: './dat-gui-params.component.html',
@@ -62,30 +72,43 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     this.guiControllers.forEach((c) => this.gui.remove(c));
     this.guiControllers = [];
 
-    this.guiControllers = params.params.map((p: Param, idx) => {
-      console.log(p);
-      let c = null;
+    this.guiControllers = params.params.map((p: Param) => this._createController(p));
+  }
 
-      if (p.value === undefined && p.opts[p.OPT_DEFAULT] !== undefined) {
-        p.value = p.opts[p.OPT_DEFAULT];
-      }
+  _createController(p: Param): dat.Controller {
+    const proxy = new Proxy(p);
+    
+    // dat.GUI doesn't react well to undefined values
+    // make sure the param value
+    if (p.value === undefined) {
+      p.value = p.getValue();
+    }
 
-      if (p.opts[p.OPT_MIN] !== undefined && p.opts[p.OPT_MAX] !== undefined) {
-        c = this.gui.add(p, 'value', p.opts[p.OPT_MIN], p.opts[p.OPT_MAX]);
-      } else {
-        c = this.gui.add(p, 'value');
-      }
+    let c = null;
 
-      return c.name(p.path)
-        .listen()
-        .onFinishChange((value: any) => {
-          // p.set(value);
-          if (isNaN(value)) {
-            p.set(0.0);
-            return;
-          }
-          this.client.output.sendValue(p.path, value);
-        });
-    });
+    if (p.opts[p.OPT_MIN] !== undefined && p.opts[p.OPT_MAX] !== undefined) {
+      c = this.gui.add(proxy, 'value', p.opts[p.OPT_MIN], p.opts[p.OPT_MAX]);
+    } else {
+      c = this.gui.add(proxy, 'value');
+    }
+
+    return c.name(p.path)
+      .listen()
+      .onFinishChange((value: any) => {
+        console.log('onFinishChange: ', value);
+
+        if (p.type === 'v') {
+          this.client.output.sendValue(p.path, p.value || 0);
+          return;
+        } else if (isNaN(value) && p.type === 'i') {
+          proxy.value = 0;
+          return;
+        } else if (isNaN(value) && p.type === 'f') {
+          proxy.value = 0.0;
+          return;
+        }
+
+        this.client.output.sendValue(p.path, value);
+      });
   }
 }
