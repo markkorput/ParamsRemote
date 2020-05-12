@@ -1,4 +1,7 @@
 <mat-toolbar>
+  <mat-icon *ngIf="isConnected()" class="icon connected" (click)="client.disconnect()">link</mat-icon>
+  <mat-icon *ngIf="!isConnected()" class="icon disconnected" (click)="client.connect()">link_off</mat-icon>
+
   <span>{{ id }}</span>
   <span class="spacer"></span>
   <mat-icon class="icon settings" (click)="toggleSettings()" aria-hidden="false" aria-label="Settings" title="settings">settings</mat-icon>
@@ -10,12 +13,27 @@
   <input type="checkbox"
     [ngModel]="settings.persistView !== false"
     (change)="onSettingsPersistViewChange($event.target.checked)"/>
+  Persist View
+
+  <input type="checkbox"
+    [ngModel]="settings.restoreValuesEnabled === true"
+    (change)="setSettingsRestoreValuesEnabled($event.target.checked)"/>
+  Restore Values
+
+  <!-- <button
+    (click)="restoreValues()">restore values</button> -->
 </div>
 
 <ul class="list-group">
-  <li *ngFor="let line of lines" class="list-group-item list-group-item-action">
+  <li *ngFor="let line of lines" [class.collapse_placeholder]="line.path !== undefined" class="list-group-item list-group-item-action"> 
   <!-- <li *ngFor="let line of getLines(params)" class="list-group-item list-group-item-action"> -->
-    <app-param *ngIf="line.param" [sessionId]="id" [paramId]="line.param.path" (collapsePath)="collapsePath($event)"></app-param>
+
+    <!-- A param line -->
+    <app-param *ngIf="line.param" [sessionId]="id" [paramId]="line.param.path"
+      (collapsePath)="collapsePath($event)"
+      (changeEvent)="onParamChange()"></app-param>
+    
+    <!-- A "collapsed group" line -->
     <a *ngIf="line.path" href="#" (click)="expandPath(line.path)">[collapsed] {{ line.path }}</a>
 
     <!-- <p *ngIf="line.param">{{ line.param.path }}</p> -->

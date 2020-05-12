@@ -56,10 +56,14 @@
 
         <!-- bool -->
         <div *ngSwitchCase="'b'" class="switch">
-          <input type="checkbox"
+          <!-- <input type="checkbox"
             [ngModel]="editValue"
             (input)="onUserInput(path, $event.target.checked)"
-            (change)="onUserChange(path, $event.target.checked)"/>
+            (change)="onUserChange(path, $event.target.checked)"/> -->
+          <mat-button-toggle-group (change)="onUserChange(path, $event.value)" [value]="editValue === undefined ? undefined : editValue.toString()">
+            <mat-button-toggle value="false">0</mat-button-toggle>
+            <mat-button-toggle value="true">1</mat-button-toggle>
+          </mat-button-toggle-group>
         </div>
         
         <!-- void (signal)  -->

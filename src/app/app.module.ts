@@ -7,7 +7,8 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
-import {MatGridListModule, MatGridList} from '@angular/material/grid-list';
+import {MatGridListModule} from '@angular/material/grid-list';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 // import { AppComponent } from './app.component';
 import { AppHomeComponentComponent } from './app-home-component/app-home-component.component';
@@ -29,7 +30,7 @@ import { ParamComponent } from './param/param.component';
     ReactiveFormsModule,
     StorageServiceModule,
     BrowserAnimationsModule,
-    MatSliderModule, MatToolbarModule, MatIconModule, MatListModule, MatGridListModule
+    MatSliderModule, MatToolbarModule, MatIconModule, MatListModule, MatGridListModule, MatButtonToggleModule
   ],
   providers: [],
   // bootstrap: [AppComponent]
