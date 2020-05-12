@@ -13,7 +13,7 @@ import { map, distinct } from 'rxjs/operators';
 export class AppSessionComponent implements OnInit {
   client: Client = undefined;
   showSettings = false;
-  settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object} = {};
+  settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object, style?: string} = {};
   lines: {param?: Param, path?: string}[] = [];
   updateRestoreValuesTimeout: any = undefined;
 
@@ -70,7 +70,7 @@ export class AppSessionComponent implements OnInit {
     this.showSettings = !this.showSettings;
   }
 
-  setSettings(settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object}): void {
+  setSettings(settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object, style?: string}): void {
     this.settings = settings;
     this.settingsService.setSessionSettings(this.id, this.settings);
   }
@@ -85,6 +85,10 @@ export class AppSessionComponent implements OnInit {
     if (val) {
       this.updateRestoreValues();
     }
+  }
+
+  setStyle(value: string): void {
+    this.setSettings({...this.settings, ...{style: value}});
   }
 
   collapsePath(path: string) {

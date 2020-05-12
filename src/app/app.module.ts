@@ -7,6 +7,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
+import {MatSelectModule} from '@angular/material/select';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
@@ -15,6 +16,7 @@ import { AppHomeComponentComponent } from './app-home-component/app-home-compone
 import { AppConnectFormComponent } from './app-connect-form/app-connect-form.component';
 import { AppSessionComponent } from './app-session/app-session.component';
 import { ParamComponent } from './param/param.component';
+import { DatGuiParamsComponent } from './dat-gui-params/dat-gui-params.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import { ParamComponent } from './param/param.component';
     AppHomeComponentComponent,
     AppConnectFormComponent,
     AppSessionComponent,
-    ParamComponent
+    ParamComponent,
+    DatGuiParamsComponent
   ],
   imports: [
     BrowserModule,
@@ -30,7 +33,10 @@ import { ParamComponent } from './param/param.component';
     ReactiveFormsModule,
     StorageServiceModule,
     BrowserAnimationsModule,
-    MatSliderModule, MatToolbarModule, MatIconModule, MatListModule, MatGridListModule, MatButtonToggleModule
+    MatSliderModule, MatToolbarModule,
+    MatIconModule, MatListModule,
+    MatGridListModule, MatButtonToggleModule,
+    MatSelectModule
   ],
   providers: [],
   // bootstrap: [AppComponent]

@@ -3,10 +3,14 @@ import {LOCAL_STORAGE, WebStorageService} from 'angular-webstorage-service';
 import { Observable, of, throwError } from 'rxjs';
 
 export class Param {
+  OPT_MIN = 'min';
+  OPT_MAX = 'max';
+  OPT_DEFAULT = 'default';
+
   path: string;
   type: string;
   value: any;
-  opts: object;
+  opts: {};
   setter: (arg0: any) => any = undefined;
 
   valueChange = new EventEmitter();
@@ -27,6 +31,27 @@ export class Param {
     if (this.value !== val) {
       this.value = val;
       this.valueChange.emit(this.value);
+    }
+  }
+
+  /// Return this.value, unless this.value === undefined, the it will
+  /// fallback to this.opts['fallback'] or hard-coded
+  // type-specific values repsectively.
+  getValue(): any {
+    return this.value !== undefined
+      ? this.value
+      : this.opts[this.OPT_DEFAULT] !== undefined
+        ? this.opts[this.OPT_DEFAULT]
+        : this._getTypeDefaultValue(this.type);
+  }
+
+  _getTypeDefaultValue(typ: string): any {
+    switch (typ) {
+      case 's': return '';
+      case 'b': return false;
+      case 'i': return 0;
+      case 'f': return 0.0;
+      case 'v': return 0;
     }
   }
 }

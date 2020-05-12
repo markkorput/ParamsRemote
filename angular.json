@@ -132,5 +132,8 @@
       }
     }
   },
-  "defaultProject": "ParamsRemote"
+  "defaultProject": "ParamsRemote",
+  "cli": {
+    "analytics": "affdd2db-fae5-47fd-87d9-1bfb20c7dbf1"
+  }
 }
