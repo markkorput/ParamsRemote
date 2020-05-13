@@ -38,6 +38,7 @@ function Proxy(p: Param): void {
 })
 export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   @Input() sessionId: string;
+  @Input() liveUpdates: false;
 
   @ViewChild('guiContainer', {static: false}) guiContainer: ElementRef;
   gui: dat.GUI = undefined;
@@ -71,6 +72,9 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     this.guiContainer.nativeElement.appendChild(this.gui.domElement);
     this.gui.domElement.className += ' gui';
   }
+
+  // ngOnChanges(changes: SimpleChanges) {
+  // }
 
   /**
    * Creates dat.GUI controllers for the given group of parameters.
@@ -156,25 +160,33 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
       c = folder.add(proxy, 'value');
     }
 
-    c.name(p.path.split('/').pop())
-      // .listen() // this makes number controllers refuse typed input
-      // we use manual updateDisplay (see below) instead.
-      .onFinishChange((value: any) => {
-        // console.log('onFinishChange: ', value);
+    const changeCallback = (value: any) => {
+      // console.log('onFinishChange: ', value);
 
-        if (p.type === 'v') {
-          this.client.output.sendValue(p.path, p.value || 0);
-          return;
-        } else if (isNaN(value) && p.type === 'i') {
-          proxy.value = 0;
-          return;
-        } else if (isNaN(value) && p.type === 'f') {
-          proxy.value = 0.0;
-          return;
-        }
+      if (p.type === 'v') {
+        this.client.output.sendValue(p.path, p.value || 0);
+        return;
+      } else if (isNaN(value) && p.type === 'i') {
+        proxy.value = 0;
+        return;
+      } else if (isNaN(value) && p.type === 'f') {
+        proxy.value = 0.0;
+        return;
+      }
 
-        this.client.output.sendValue(p.path, value);
-      });
+      this.client.output.sendValue(p.path, value);
+    };
+
+    c = c.name(p.path.split('/').pop());
+
+    // .listen() // this makes number controllers refuse typed input
+    c.onFinishChange(changeCallback);
+
+    c.onChange((v) => {
+      if (this.liveUpdates) {
+        changeCallback(v);
+      }
+    });
 
     // whenever the param is updated, force a
     // (visual) update of the dat.GUI controller

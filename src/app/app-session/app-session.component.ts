@@ -79,6 +79,10 @@ export class AppSessionComponent implements OnInit {
     this.setSettings({...this.settings, ...{persistView: val}});
   }
 
+  onSettingsLiveUpdatesChange(val: boolean): void {
+    this.setSettings({...this.settings, ...{liveUpdates: val}});
+  }
+
   setSettingsRestoreValuesEnabled(val: boolean): void {
     this.setSettings({...this.settings, ...{restoreValuesEnabled: val}});
 
