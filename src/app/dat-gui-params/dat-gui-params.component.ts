@@ -2,15 +2,25 @@ import { Component, OnInit, Input, NgZone, ViewChild, AfterViewInit, ElementRef 
 import { RemoteParamsService, Client, Params, Param } from '../remote-params.service';
 import * as dat from 'dat.gui';
 
+/**
+ * Create a prpxy object (with a `value` property and a `destroy` method)
+ * for the given param that can be used as subject for a dat.GUI Controller.
+ * @param p (Param): the param for which to create a proxy object.
+ * @returns (Object): the proxy object that will auto-update its `value`
+ * property when `p` emits the valueChange event. The proxy's `destroy` function
+ * will cleanup the valueChange event subscriber.
+ */
 function Proxy(p: Param): void {
   // for 'void' (trigger) params, the value must stay an (empty)
   // function, so dat.gui understand it's trigger-type param
   const isVoid = (p.type === 'v');
   this.value = isVoid ? () => {} : p.getValue();
-
+  console.log('this value:', this.value, typeof(this.value));
   const subscription = isVoid ? null : p.valueChange.subscribe((newValue: any) => {
     // apply new (incoming) values from the Param to `this` proxy
-    this.value = newValue;
+    const newv = p.getValue();
+    console.log('updating proxy with: ', newv, typeof(newv), newValue, typeof(newValue));
+    this.value = p.getValue(); //newValue;
   });
 
   this.destroy = () => {
@@ -62,10 +72,15 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     this.gui.domElement.className += ' gui';
   }
 
+  /**
+   * Creates dat.GUI controllers for the given group of parameters.
+   * @param params (Params): params groups for which to create controllers
+   */
   _initParams(params: Params): void {
     // remove existing params
     Object.keys(this.guiControllers).forEach((k) => {
-      this.guiControllers[k].destroy();
+      const destroyFunc = this.guiControllers[k];
+      destroyFunc();
       this.gui.remove(k);
     });
 
@@ -76,14 +91,15 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  _createController(p: Param): [dat.Controller, any] {
+  /**
+   * Create a dat.GUI controller + cleanup-method for the given param
+   * @param p (Param): the param for which to create a controller
+   * @returns (array): A dat.Controller/cleanup-function pair.
+   * The cleanup-function should be called when the controller
+   * is expired to perform necessary internal cleanup.
+   */
+  _createController(p: Param): [dat.Controller, () => void] {
     const proxy = new Proxy(p);
-
-    // dat.GUI doesn't react well to undefined values
-    // make sure the param value
-    if (p.value === undefined) {
-      p.value = p.getValue();
-    }
 
     let c = null;
 
@@ -94,9 +110,10 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     }
 
     c.name(p.path)
-      .listen()
+      // .listen() // this makes number controllers refuse typed input
+      // we use manual updateDisplay (see below) instead.
       .onFinishChange((value: any) => {
-        console.log('onFinishChange: ', value);
+        // console.log('onFinishChange: ', value);
 
         if (p.type === 'v') {
           this.client.output.sendValue(p.path, p.value || 0);
@@ -112,6 +129,19 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
         this.client.output.sendValue(p.path, value);
       });
 
-    return [c, proxy];
+    // whenever the param is updated, force a
+    // (visual) update of the dat.GUI controller
+    const subscription = p.valueChange.subscribe(() => {
+      c.updateDisplay();
+    });
+
+    // method that will cleanup everything we just created
+    const destroyFunc = (): void => {
+      subscription.unsubscribe();
+      proxy.destroy();
+    };
+
+    // return both the controller and the cleanup function
+    return [c, destroyFunc];
   }
 }
