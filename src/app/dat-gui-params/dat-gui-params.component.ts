@@ -3,13 +3,21 @@ import { RemoteParamsService, Client, Params, Param } from '../remote-params.ser
 import * as dat from 'dat.gui';
 
 function Proxy(p: Param): void {
-  this.value = p.type !== 'v' ? p.getValue() : () => {};
+  // for 'void' (trigger) params, the value must stay an (empty)
+  // function, so dat.gui understand it's trigger-type param
+  const isVoid = (p.type === 'v');
+  this.value = isVoid ? () => {} : p.getValue();
 
-  p.valueChange.subscribe(newValue => {
-    if (p.type !== 'v') {
-      this.value = newValue;
-    }
+  const subscription = isVoid ? null : p.valueChange.subscribe((newValue: any) => {
+    // apply new (incoming) values from the Param to `this` proxy
+    this.value = newValue;
   });
+
+  this.destroy = () => {
+    if (subscription) {
+      subscription.unsubscribe();
+    }
+  };
 }
 
 @Component({
@@ -22,7 +30,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
 
   @ViewChild('guiContainer', {static: false}) guiContainer: ElementRef;
   gui: dat.GUI = undefined;
-  guiControllers: dat.Controller[] = [];
+  guiControllers = {};
   client: Client = undefined;
 
   constructor(
@@ -33,19 +41,6 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.gui = new dat.GUI({autoPlace: false, hideable: false, width: 'auto'});
     const gui = this.gui;
-
-    const FizzyText = function() {
-      this.message = 'dat.gui';
-      this.speed = 0.8;
-      this.displayOutline = false;
-      this.explode = () => {};
-      // Define render logic ...
-    };
-    const text = new FizzyText();
-    this.guiControllers.push(gui.add(text, 'message'));
-    this.guiControllers.push(gui.add(text, 'speed', -5, 5));
-    this.guiControllers.push(gui.add(text, 'displayOutline'));
-    this.guiControllers.push(gui.add(text, 'explode'));
 
     this.remoteParamsService.getClient(this.sessionId).subscribe((c) => {
       this.client = c;
@@ -69,15 +64,21 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
 
   _initParams(params: Params): void {
     // remove existing params
-    this.guiControllers.forEach((c) => this.gui.remove(c));
-    this.guiControllers = [];
+    Object.keys(this.guiControllers).forEach((k) => {
+      this.guiControllers[k].destroy();
+      this.gui.remove(k);
+    });
 
-    this.guiControllers = params.params.map((p: Param) => this._createController(p));
+    this.guiControllers = {};
+    params.params.forEach((p: Param) => {
+      const pair = this._createController(p);
+      this.guiControllers[pair[0]] = pair[1];
+    });
   }
 
-  _createController(p: Param): dat.Controller {
+  _createController(p: Param): [dat.Controller, any] {
     const proxy = new Proxy(p);
-    
+
     // dat.GUI doesn't react well to undefined values
     // make sure the param value
     if (p.value === undefined) {
@@ -92,7 +93,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
       c = this.gui.add(proxy, 'value');
     }
 
-    return c.name(p.path)
+    c.name(p.path)
       .listen()
       .onFinishChange((value: any) => {
         console.log('onFinishChange: ', value);
@@ -110,5 +111,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
 
         this.client.output.sendValue(p.path, value);
       });
+
+    return [c, proxy];
   }
 }

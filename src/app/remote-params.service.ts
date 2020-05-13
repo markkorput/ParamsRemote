@@ -38,11 +38,21 @@ export class Param {
   /// fallback to this.opts['fallback'] or hard-coded
   // type-specific values repsectively.
   getValue(): any {
-    return this.value !== undefined
+    return this._convertValue(this.value !== undefined
       ? this.value
       : this.opts[this.OPT_DEFAULT] !== undefined
         ? this.opts[this.OPT_DEFAULT]
-        : this._getTypeDefaultValue(this.type);
+        : this._getTypeDefaultValue(this.type), this.type);
+  }
+
+  _convertValue(val: any, typ: string): any {
+    switch (typ) {
+      case 's': return val.toString();
+      case 'b': return ['false', '0'].indexOf(val.toString().toLowerCase()) === -1;
+      case 'i': return parseInt(val, 10);
+      case 'f': return parseFloat(val);
+      case 'v': return parseInt(val, 10);
+    }
   }
 
   _getTypeDefaultValue(typ: string): any {
