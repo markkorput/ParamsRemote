@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, NgZone, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { RemoteParamsService, Client, Params, Param } from '../remote-params.service';
 import * as dat from 'dat.gui';
+import { Gunzip } from 'zlib';
 
 /**
  * Create a prpxy object (with a `value` property and a `destroy` method)
@@ -40,7 +41,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
 
   @ViewChild('guiContainer', {static: false}) guiContainer: ElementRef;
   gui: dat.GUI = undefined;
-  guiControllers = {};
+  guiDestructors = {};
   client: Client = undefined;
 
   constructor(
@@ -50,16 +51,15 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.gui = new dat.GUI({autoPlace: false, hideable: false, width: 'auto'});
-    const gui = this.gui;
 
     this.remoteParamsService.getClient(this.sessionId).subscribe((c) => {
       this.client = c;
 
       this.client.params.schemaChange.subscribe(() => {
-        this._initParams(this.client.params);
+        this._initParams(this.client.params.params);
       });
 
-      this._initParams(this.client.params);
+      this._initParams(this.client.params.params);
     });
   }
 
@@ -74,42 +74,89 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
 
   /**
    * Creates dat.GUI controllers for the given group of parameters.
-   * @param params (Params): params groups for which to create controllers
+   * @param params (Param[]): list of params for which to create controllers
    */
-  _initParams(params: Params): void {
+  _initParams(params: Param[]): void {
     // remove existing params
-    Object.keys(this.guiControllers).forEach((k) => {
-      const destroyFunc = this.guiControllers[k];
+    Object.keys(this.guiDestructors).forEach((k) => {
+      const destroyFunc = this.guiDestructors[k];
       destroyFunc();
-      this.gui.remove(k);
     });
 
-    this.guiControllers = {};
-    params.params.forEach((p: Param) => {
-      const pair = this._createController(p);
-      this.guiControllers[pair[0]] = pair[1];
+    if (params.length === 0) {
+      // create single trigerable 'loading...' item
+      const forceReload = () => { console.log('Loading...'); this.client.output.requestSchema(); };
+      const factory = function() { this.loading = () => forceReload(); };
+      const loadingController = this.gui.add(new factory(), 'loading').name('loading...');
+      this.guiDestructors[loadingController] = () => { this.gui.remove(loadingController); };
+      return;
+    }
+
+    // create root folder
+    this.guiDestructors = {};
+    const rootFolder = this.gui.addFolder('params');
+    this.guiDestructors[rootFolder] = () => { this.gui.removeFolder(rootFolder); };
+    rootFolder.open();
+
+    // this object will hold all folder
+    const folders = {'': rootFolder};
+
+    // the method fetches/creates folder
+    const getFolder = (path: string): any => {
+      if (folders[path] === undefined) {
+        const parts = path.split('/');
+        const iterPaths = [];
+        parts.forEach(part => {
+          const parentPath = iterPaths.join('/');
+          iterPaths.push(part);
+          const iterPath = iterPaths.join('/');
+          if (folders[iterPath] === undefined) {
+            const f = folders[parentPath].addFolder(part);
+            f.open();
+            folders[iterPath] = f;
+
+            this.guiDestructors[f] = () => folders[parentPath].removeFolder(f);
+          }
+        });
+      }
+
+      return folders[path];
+    };
+
+    // create controllers for all params
+    params.forEach((p: Param) => {
+      const parts = p.path.split('/');
+      const name = parts.pop();
+      const folderPath = parts.join('/');
+
+      const folder = getFolder(folderPath);
+
+
+      const pair = this._createController(p, folder);
+      this.guiDestructors[pair[0]] = pair[1];
     });
   }
 
   /**
    * Create a dat.GUI controller + cleanup-method for the given param
    * @param p (Param): the param for which to create a controller
+   * @param folder (dat.gui.GUI): dat.GUI folder to which the controller should be added
    * @returns (array): A dat.Controller/cleanup-function pair.
    * The cleanup-function should be called when the controller
    * is expired to perform necessary internal cleanup.
    */
-  _createController(p: Param): [dat.Controller, () => void] {
+  _createController(p: Param, folder: dat.gui.GUI): [dat.Controller, () => void] {
     const proxy = new Proxy(p);
 
     let c = null;
 
     if (p.opts[p.OPT_MIN] !== undefined && p.opts[p.OPT_MAX] !== undefined) {
-      c = this.gui.add(proxy, 'value', p.opts[p.OPT_MIN], p.opts[p.OPT_MAX]);
+      c = folder.add(proxy, 'value', p.opts[p.OPT_MIN], p.opts[p.OPT_MAX]);
     } else {
-      c = this.gui.add(proxy, 'value');
+      c = folder.add(proxy, 'value');
     }
 
-    c.name(p.path)
+    c.name(p.path.split('/').pop())
       // .listen() // this makes number controllers refuse typed input
       // we use manual updateDisplay (see below) instead.
       .onFinishChange((value: any) => {
@@ -139,6 +186,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     const destroyFunc = (): void => {
       subscription.unsubscribe();
       proxy.destroy();
+      folder.remove(c);
     };
 
     // return both the controller and the cleanup function
