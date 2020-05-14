@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, NgZone, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { RemoteParamsService, Client, Params, Param } from '../remote-params.service';
 import * as dat from 'dat.gui';
-import { Gunzip } from 'zlib';
 
 /**
  * Create a prpxy object (with a `value` property and a `destroy` method)
@@ -200,7 +199,18 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
       proxy.destroy();
       folder.remove(c);
     };
-
+    
+    // insert down arrow link next to controler name
+    const el = document.createElement('a');
+    el.appendChild(document.createElement('span'));
+    el.className = 'opts';
+    el.href = '#';
+    el.onclick = (evt) => {
+      evt.stopPropagation();
+      console.log(p.path); return false;
+    };
+    c.domElement.parentNode.querySelector('.property-name').appendChild(el);
+    // window.ccc = c;
     // return both the controller and the cleanup function
     return [c, destroyFunc];
   }

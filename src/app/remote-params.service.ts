@@ -391,7 +391,6 @@ export class WebsocketsClient extends Client {
 
       param.set(value);
     });
-
   }
 
   requestSchemaInformation(maxAttempts?: number) {
