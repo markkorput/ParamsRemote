@@ -15,3 +15,7 @@
 }
 
 :host::ng-deep a.opts:hover span { background: white; }
+
+:host::ng-deep li.menu { display:none; }
+
+:host::ng-deep li.menu.shown { display: block }
