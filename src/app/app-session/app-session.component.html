@@ -17,13 +17,13 @@
     </option>
   </select>
 
-  <!-- <mat-label>Style</mat-label> -->
-<!-- 
-  <mat-select>
-    <mat-option *ngFor="let style of ['dat.GUI', 'ParamsRemote']" [value]="settings.style || 'ParamsRemote'">
-      {{ style }}
-    </mat-option>
-  </mat-select> -->
+  <span *ngIf="settings.style === 'dat.GUI'">
+    <input type="checkbox"
+      [ngModel]="settings.liveUpdates === true"
+      (change)="onSettingsLiveUpdatesChange($event.target.checked)"/>
+    Live Updates
+  </span>
+
   <input type="checkbox"
     [ngModel]="settings.persistView !== false"
     (change)="onSettingsPersistViewChange($event.target.checked)"/>
@@ -38,7 +38,7 @@
     (click)="restoreValues()">restore values</button> -->
 </div>
 
-<app-dat-gui-params *ngIf="settings.style==='dat.GUI'" [sessionId]="id">
+<app-dat-gui-params *ngIf="settings.style==='dat.GUI'" [sessionId]="id" [liveUpdates]="settings.liveUpdates === true">
 </app-dat-gui-params>
 
 <ul class="list-group" *ngIf="settings.style==='ParamsRemote'">
