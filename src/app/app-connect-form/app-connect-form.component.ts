@@ -27,7 +27,6 @@ export class AppConnectFormComponent implements OnInit {
       host: '127.0.0.1',
       port: 8081
     });
-
   }
 
   ngOnInit() {
@@ -42,5 +41,15 @@ export class AppConnectFormComponent implements OnInit {
   onSubmitWebsocketsForm(data) {
     this.remoteParamsService.connectWebsockets(data.host, data.port);
     this.connectAttempt.emit();
+  }
+
+  connectToFoundServer(url: string): void {
+    if (!url) {
+      return;
+    }
+
+    const parts = url.split(':');
+    this.remoteParamsService.connectWebsockets(parts[0], parseInt(parts[1], 10));
+
   }
 }

@@ -20,7 +20,7 @@ function Proxy(p: Param): void {
   const subscription = isVoid ? null : p.valueChange.subscribe((newValue: any) => {
     // apply new (incoming) values from the Param to `this` proxy
     const newv = p.getValue();
-    console.log('updating proxy with: ', newv, typeof(newv), newValue, typeof(newValue));
+    // console.log('updating proxy with: ', newv, typeof(newv), newValue, typeof(newValue));
     this.value = p.getValue(); //newValue;
   });
 

@@ -257,7 +257,7 @@ class WebsocketsOutputInterface extends OutputInterface {
   }
 
   sendValue(path: string, value: any): void {
-    console.log('send value', value);
+    // console.log('send value', value);
     if (this.socket === null) {
       console.warn(`no socket, can't send value: ${path} = ${value}`);
       return;
@@ -411,6 +411,87 @@ export class WebsocketsClient extends Client {
   }
 }
 
+class WebsocketFinder {
+  host = '127.0.0.1';
+  startPort: number;
+  endPort: number;
+  nextPort: number;
+  onlyOnce: boolean;
+  callback: (host: string, port: number) => void;
+  iterateInterval: any = undefined;
+  foundServers: {host: string, port: number}[] = [];
+
+  constructor(callback?: (host: string, port: number) => void, opts?: {startPort?: number, endPort?: number, onlyOnce?: boolean}) {  
+    this.callback = callback;
+    this.startPort = opts['startPort'] || 8080;
+    this.endPort = opts['endPort'] || 8090;
+    this.onlyOnce = opts['onlyOnce'] === true;
+
+    this.nextPort = this.startPort;
+    this.start();
+  }
+
+  _iterate(): void {
+    this.tryPort(this.nextPort, () => {
+      if (this.callback) {
+        this.callback(this.host, this.nextPort);
+      }
+    });
+
+    this.nextPort += 1;
+    if (this.nextPort > this.endPort) {
+      this.nextPort = this.startPort;
+
+      if (this.onlyOnce) {
+        this.stop()
+      }
+    }
+  }
+
+  tryPort(port: number, onSuccess: () => void) {
+    try {
+      const socket = new WebSocket('ws://localhost:' + port.toString());
+      socket.onerror = (evt: any) => { };
+
+      socket.addEventListener('open', (event) => {
+        // socket.send('Hello Server!');
+        console.log('WebsocketBroadcastListener found open socket on port:', port);
+      });
+
+      socket.addEventListener('message', (event) => {
+        // console.log('Message from server ', event.data);
+        if (this.isWelcomeMessage(event.data)) {
+          socket.send('stop');
+          console.log('WebsocketBroadcastListener found server on port:', port);
+          this.foundServers.push({host: this.host, port});
+          onSuccess();
+        }
+      });
+
+      setTimeout(socket.close, 500);
+    } catch(e) {
+      //
+    }
+  }
+
+  isWelcomeMessage(msg: any): boolean {
+    return msg.toLowerCase().indexOf('welcome') !== -1;
+  }
+
+  start(): void {
+    this.stop();
+    this.iterateInterval = setInterval(() => this._iterate(), 500);
+  }
+
+  stop(): void {
+    if (this.iterateInterval) {
+      clearInterval(this.iterateInterval);
+      this.iterateInterval = undefined;
+    }
+  }
+}
+
+
 //
 // OSC
 //
@@ -489,6 +570,7 @@ export class OscClient extends Client {
   }
 }
 
+
 //
 // Angular Service
 //
@@ -500,8 +582,10 @@ export class RemoteParamsService {
   clients: Client[] = []; // will contain <sessionId>:<remote_params_client> pairs
   onConnect = new EventEmitter();
   onDisconnect = new EventEmitter();
+  onWebsocketServerBroadcast = new EventEmitter();
   allowDuplicates = true;
   localValues = {};
+  websocketFinder: WebsocketFinder;
 
   constructor(
     @Inject(LOCAL_STORAGE) private storage: WebStorageService
@@ -593,5 +677,20 @@ export class RemoteParamsService {
     });
 
     return count;
+  }
+
+  findWebsockets(callback?: (host: string, port: number) => void, opts?: {}): void {
+    // this.stopFindingWesockets();
+    if (this.websocketFinder === undefined) {
+      this.websocketFinder = new WebsocketFinder(callback, opts);
+    } else {
+      this.websocketFinder.start();
+    }
+  }
+
+  stopFindingWesockets() {
+    if (this.websocketFinder) {
+      this.websocketFinder.stop();
+    }
   }
 }
