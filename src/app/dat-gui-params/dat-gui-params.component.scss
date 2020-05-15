@@ -19,3 +19,9 @@
 :host::ng-deep li.menu { display:none; }
 
 :host::ng-deep li.menu.shown { display: block }
+
+:host::ng-deep li.image { display:none; height: auto; }
+
+:host::ng-deep li.image.shown { display: block }
+
+:host::ng-deep li.image img { height: 200px; }

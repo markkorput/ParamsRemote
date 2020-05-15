@@ -158,7 +158,7 @@ export class AppSessionComponent implements OnInit {
       return;
     }
 
-    const values = this.client.params.getValues();
+    const values = this.client.params.getValues({'skipImages': true});
     this.setSettings({...this.settings, ...{restoreValues: values}});
     console.log(`updateRestoreValues: ${values}`);
   }

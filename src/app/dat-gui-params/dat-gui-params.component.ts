@@ -14,14 +14,28 @@ function Proxy(p: Param): void {
   // for 'void' (trigger) params, the value must stay an (empty)
   // function, so dat.gui understand it's trigger-type param
   const isVoid = (p.type === 'v');
-  this.value = isVoid ? () => {} : p.getValue();
-  console.log('this value:', this.value, typeof(this.value));
-  const subscription = isVoid ? null : p.valueChange.subscribe((newValue: any) => {
-    // apply new (incoming) values from the Param to `this` proxy
-    const newv = p.getValue();
-    // console.log('updating proxy with: ', newv, typeof(newv), newValue, typeof(newValue));
-    this.value = p.getValue(); //newValue;
-  });
+
+  this.apply = (val) => {
+    if (isVoid) {
+      return;
+    }
+
+    if (p.type === 'g') { // image
+      this.value = `${(val || '').length} bytes`;
+      return;
+    }
+
+    this.value = val;
+  };
+
+  if (isVoid) { // image
+    this.value = () => {};
+  } else {
+    this.apply(p.getValue());
+  }
+
+  // console.log('this value:', this.value, typeof(this.value));
+  const subscription = isVoid ? null : p.valueChange.subscribe((newValue: any) => this.apply(newValue));
 
   this.destroy = () => {
     if (subscription) {
@@ -193,16 +207,28 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
       c.updateDisplay();
     });
 
-    // method that will cleanup everything we just created
-    const destroyFunc = (): void => {
-      subscription.unsubscribe();
-      proxy.destroy();
-      folder.remove(c);
-    };
-
-    // insert options menu 
+    // insert options menu
     const menuel = document.createElement('li');
     menuel.className = 'menu';
+    c.domElement.parentNode.parentNode.after(menuel);
+
+    let imageLi;
+    let imageSub;
+    if (p.type === 'g') {
+      imageLi = document.createElement('li');
+      imageLi.className = 'image shown';
+      menuel.after(imageLi);
+
+      const imgel = document.createElement('img');
+      imageLi.appendChild(imgel);
+
+      const applyImage = (data) => {
+        // console.log('TODO: apply image');
+        imgel.src = `data:image/jpeg;base64,${data.trim()}`;
+      };
+
+      imageSub = p.valueChange.subscribe(applyImage); // todo: unsubsribe in destroyFunc
+    }
 
     // insert down arrow link next to controler name
     const el = document.createElement('a');
@@ -220,10 +246,26 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
       return false;
     };
 
-    c.domElement.parentNode.parentNode.after(menuel);
     c.domElement.parentNode.querySelector('.property-name').appendChild(el);
 
-    // window.ccc = c;
+    // method that will cleanup everything we just created
+    const destroyFunc = (): void => {
+      subscription.unsubscribe();
+      proxy.destroy();
+      folder.remove(c);
+
+      menuel.remove();
+      el.remove();
+
+      if (imageSub) {
+        imageSub.unsubscribe();
+      }
+
+      if (imageLi) {
+        imageLi.remove();
+      }
+    };
+
     // return both the controller and the cleanup function
     return [c, destroyFunc];
   }
