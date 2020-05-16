@@ -4,7 +4,7 @@
       <!-- {{ path }} -->
       <a *ngFor="let pathpart of pathParts()" class="pathpart" href="#" (click)="pathpart.action()">/{{ pathpart.name }} </a>
     </div>
-    <div class="col-sm">{{ editValue }}</div>
+    <div class="col-sm">{{ type === 'g' ? '_image_' : editValue }}</div>
     <div class="col-sm" [ngClass]="{editing: clickActivated || hoverActivated}">
 
       <div [ngSwitch]="type" >
@@ -72,6 +72,9 @@
             (click)="onUserChange(path, null)">{{ path.split('/').pop() }}</button>
         </div>
 
+        <div *ngSwitchCase="'g'">
+          Image type not yet supported
+        </div>
 
         <ng-template ngSwitchDefault>Unknown param type ({{type}}) for param: {{path}}</ng-template>
       </div>
