@@ -179,8 +179,13 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
       if (p.type === 'v') {
         this.client.output.sendValue(p.path, p.value || 0);
         return;
-      } else if (isNaN(value) && p.type === 'i') {
-        proxy.value = 0;
+      } else if (p.type === 'i') {
+        if (isNaN(value)) {
+          proxy.value = 0;
+          return;
+        }
+
+        this.client.output.sendValue(p.path, Math.floor(value));
         return;
       } else if (isNaN(value) && p.type === 'f') {
         proxy.value = 0.0;
