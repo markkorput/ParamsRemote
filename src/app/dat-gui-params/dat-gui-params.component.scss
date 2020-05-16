@@ -16,9 +16,6 @@
 
 :host::ng-deep a.opts:hover span { background: white; }
 
-:host::ng-deep li.menu { display:none; }
-
-:host::ng-deep li.menu.shown { display: block }
-
-:host::ng-deep li.image { height: auto; }
-:host::ng-deep li.image img { height: 200px; }
+:host::ng-deep li.sub { height: auto; }
+:host::ng-deep li.sub img { height: 200px; }
+:host::ng-deep li.sub .menu .icon { cursor: pointer; }

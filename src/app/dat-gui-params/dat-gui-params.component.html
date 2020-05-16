@@ -2,9 +2,5 @@
 
 <!-- render 'graph' component for every int, float and bool param -->
 <ul id="menus">
-  <li *ngFor="let param of params | async" class="menu shown">
-    param: {{ param.path }}
-  </li>
-
-  <app-param-img *ngFor="let param of imageParams | async" [path]="param.path"></app-param-img>
+  <app-param-sub *ngFor="let param of params | async" [param]="param"></app-param-sub>
 </ul>
