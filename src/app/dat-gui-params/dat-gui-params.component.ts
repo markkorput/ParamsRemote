@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, NgZone, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, NgZone, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Observable } from 'rxjs';
 import { RemoteParamsService, Client, Params, Param } from '../remote-params.service';
 import * as dat from 'dat.gui';
 
@@ -45,6 +46,19 @@ function Proxy(p: Param): void {
 }
 
 @Component({
+  selector: 'app-param-img',
+  template: `
+    <li #myLi class="image shown _io_"><img [src]="src" [alt]="path" [title]="path+' preview'" /></li>
+  `
+})
+export class ParamImgComponent {
+  @Input() path: string;
+  @Input() src: string;
+
+  @ViewChild('myLi', {static: true}) liEl: ElementRef;
+}
+
+@Component({
   selector: 'app-dat-gui-params',
   templateUrl: './dat-gui-params.component.html',
   styleUrls: ['./dat-gui-params.component.scss']
@@ -54,7 +68,12 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   @Input() liveUpdates: false;
 
   @ViewChild('guiContainer', {static: false}) guiContainer: ElementRef;
+  @ViewChildren(ParamImgComponent) imgContainers: QueryList<ParamImgComponent>;
+
+  params: Observable<Param[]>;
+  imageParams: Observable<Param[]>;
   gui: dat.GUI = undefined;
+  guiControllers: {string?: dat.Controller[]};
   guiDestructors = {};
   client: Client = undefined;
 
@@ -66,15 +85,23 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.gui = new dat.GUI({autoPlace: false, hideable: false, width: 'auto'});
 
-    this.remoteParamsService.getClient(this.sessionId).subscribe((c) => {
-      this.client = c;
-
-      this.client.params.schemaChange.subscribe(() => {
-        this._initParams(this.client.params.params);
+    this.params = new Observable<Param[]>(observer => {
+      this.remoteParamsService.getClient(this.sessionId).subscribe((c) => {
+        this.client = c;
+        observer.next(this.client.params.params);
+        // whenever the params schema changes, update our params observable
+        this.client.params.schemaChange.subscribe(() =>
+          observer.next(this.client.params.params));
       });
-
-      this._initParams(this.client.params.params);
     });
+
+    this.imageParams = new Observable<Param[]>(observer =>
+      this.params.subscribe(params => {
+        // update imageParams
+        observer.next(params.filter(p => p.type === 'g'));
+        // update controllers
+        this._initParams(params);
+      }));
   }
 
   ngAfterViewInit() {
@@ -84,6 +111,8 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     // append to our wrapper element
     this.guiContainer.nativeElement.appendChild(this.gui.domElement);
     this.gui.domElement.className += ' gui';
+
+    this.imgContainers.changes.subscribe(ob => this._repositionImages(this.imgContainers));
   }
 
   // ngOnChanges(changes: SimpleChanges) {
@@ -94,11 +123,16 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
    * @param params (Param[]): list of params for which to create controllers
    */
   _initParams(params: Param[]): void {
+    // if (this.guiDestructors === undefined) return; // another _initParams is currently running
+
     // remove existing params
+    console.log('Removing existing params');
     Object.keys(this.guiDestructors).forEach((k) => {
       const destroyFunc = this.guiDestructors[k];
       destroyFunc();
     });
+
+    // this.guiDestructors = undefined;
 
     if (params.length === 0) {
       // create single trigerable 'loading...' item
@@ -109,7 +143,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // create root folder
+    // create gui root folder
     this.guiDestructors = {};
     const rootFolder = this.gui.addFolder('params');
     this.guiDestructors[rootFolder] = () => { this.gui.removeFolder(rootFolder); };
@@ -141,15 +175,15 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     };
 
     // create controllers for all params
+    this.guiControllers = {};
     params.forEach((p: Param) => {
       const parts = p.path.split('/');
       const name = parts.pop();
       const folderPath = parts.join('/');
-
       const folder = getFolder(folderPath);
 
-
       const pair = this._createController(p, folder);
+      this.guiControllers[p.path] = pair[0];
       this.guiDestructors[pair[0]] = pair[1];
     });
   }
@@ -274,4 +308,19 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     // return both the controller and the cleanup function
     return [c, destroyFunc];
   }
+
+  _repositionImages(imgcomps: QueryList<ParamImgComponent>): void {
+    // the imgels are dynamically rendered _below_ the dat.GUI container,
+    // we'll move each of these into the dat.GUI container, right below,
+    // the <li> of the corresponding param controller (if found)
+    imgcomps.forEach((imgcomp) => {
+      const ctrl = this.guiControllers[imgcomp.path];
+      //console.log('relocating: ', imgcomp.liEl);
+      if (ctrl) {
+        ctrl.domElement.parentNode.parentNode.after(imgcomp.liEl.nativeElement);
+      }
+    });
+  }
+
+
 }
