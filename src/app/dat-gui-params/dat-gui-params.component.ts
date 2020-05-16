@@ -4,7 +4,7 @@ import { RemoteParamsService, Client, Params, Param } from '../remote-params.ser
 import * as dat from 'dat.gui';
 
 /**
- * Create a prpxy object (with a `value` property and a `destroy` method)
+ * Create a proxy object (with a `value` property and a `destroy` method)
  * for the given param that can be used as subject for a dat.GUI Controller.
  * @param p (Param): the param for which to create a proxy object.
  * @returns (Object): the proxy object that will auto-update its `value`
@@ -52,12 +52,22 @@ function Proxy(p: Param): void {
       <a #arrowEl class="opts" href="#" (click)="toggleMenu()"><span></span></a>
 
       <mat-toolbar #menuEl class="menu" *ngIf="showMenu">
-        <mat-icon class="icon" (click)="toggleGraph()"
-          aria-hidden="false" aria-label="Graph"
-          title="settings">insert_chart_outlined</mat-icon>
+        <mat-icon *ngIf="param.type==='g'"
+          class="icon"
+          (click)="toggleImage()"
+          aria-hidden="false"
+          aria-label="Image"
+          title="Toggle Image">photo</mat-icon>
+
+        <mat-icon *ngIf="isGraphSupported()"
+          class="icon"
+          (click)="toggleGraph()"
+          aria-hidden="false"
+          aria-label="Graph"
+          title="Toggle Graph">insert_chart_outlined</mat-icon>
       </mat-toolbar>
 
-      <img #previewImg *ngIf="param.type==='g'" src="" [alt]="param.path" [title]="param.path+' preview'" />
+      <img #previewImg *ngIf="showImage && param.type==='g'" src="" [alt]="param.path" [title]="param.path+' preview'" />
 
       <div #graph *ngIf="showGraph" class="graph">
         todo: graph
@@ -74,6 +84,7 @@ export class ParamSubComponent implements AfterViewInit {
   @ViewChild('menuEl', {static: true}) menuEl: ElementRef;
 
   showMenu = false;
+  showImage = true;
   showGraph = false;
 
   constructor(
@@ -85,7 +96,7 @@ export class ParamSubComponent implements AfterViewInit {
   }
 
   _showImageData(data: string): void {
-    if (this.imgEl) {
+    if (this.imgEl && this.showImage) {
       this.imgEl.nativeElement.src = `data:image/jpeg;base64,${data.trim()}`;
     }
   }
@@ -94,8 +105,19 @@ export class ParamSubComponent implements AfterViewInit {
     this.showMenu = !this.showMenu;
   }
 
+  toggleImage() {
+    this.showImage = !this.showImage;
+    if (this.showImage) {
+      this._showImageData(this.param.getValue());
+    }
+  }
+
   toggleGraph() {
     this.showGraph = !this.showGraph;
+  }
+
+  isGraphSupported(): boolean {
+    return this.param.type === 'i' || this.param.type === 'f' || this.param.type === 'b' || this.param.type === 'g';
   }
 }
 
@@ -109,7 +131,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   @Input() liveUpdates: false;
 
   @ViewChild('guiContainer', {static: false}) guiContainer: ElementRef;
-  @ViewChildren(ParamSubComponent) subContainers: QueryList<ParamSubComponent>;
+  @ViewChildren(ParamSubComponent) subs: QueryList<ParamSubComponent>;
 
   params: Observable<Param[]>;
   gui: dat.GUI = undefined;
@@ -144,7 +166,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     // append to our wrapper element
     this.guiContainer.nativeElement.appendChild(this.gui.domElement);
     this.gui.domElement.className += ' gui';
-    this.subContainers.changes.subscribe(ob => this._repositionSubs(this.subContainers));
+    this.subs.changes.subscribe(ob => this._repositionSubs(this.subs));
   }
 
   /**
@@ -286,22 +308,28 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
     return [c, destroyFunc];
   }
 
-  _repositionSubs(imgcomps: QueryList<ParamSubComponent>): void {
+  /**
+   * Move view-elements of `subcomps` into the dat.GUI controllers container
+   * @param subcomps (QueryList<ParamSubComponent>): querylist of rendered components
+   *  whose view-elements will be displaced.
+   */
+  _repositionSubs(subcomps: QueryList<ParamSubComponent>): void {
     // the imgcomps are dynamically rendered _below_ the dat.GUI container,
     // we'll move each of these into the dat.GUI container, right below,
     // the <li> of the corresponding param controller (if found)
-    imgcomps.forEach((imgcomp) => {
-      const ctrl = this.guiControllers[imgcomp.param.path];
+    subcomps.forEach((comp) => {
+      // find the controller that corresponds to this component's param
+      const ctrl = this.guiControllers[comp.param.path];
 
       if (!ctrl) {
         return;
       }
 
-      ctrl.domElement.parentNode.parentNode.after(imgcomp.liEl.nativeElement);
+      // move the <li> element to right after the controller's <li>
+      ctrl.domElement.parentNode.parentNode.after(comp.liEl.nativeElement);
 
-      if (imgcomp.arrowEl) {
-        ctrl.domElement.parentNode.querySelector('.property-name').appendChild(imgcomp.arrowEl.nativeElement);
-      }
+      // move the <a> arrow element into the controller's propert name container
+      ctrl.domElement.parentNode.querySelector('.property-name').appendChild(comp.arrowEl.nativeElement);
     });
   }
 }

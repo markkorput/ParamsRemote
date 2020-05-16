@@ -15,7 +15,7 @@
 }
 
 :host::ng-deep a.opts:hover span { background: white; }
-
 :host::ng-deep li.sub { height: auto; }
 :host::ng-deep li.sub img { height: 200px; }
 :host::ng-deep li.sub .menu .icon { cursor: pointer; }
+#external-subs { display: none; }

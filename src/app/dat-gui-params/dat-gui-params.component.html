@@ -1,6 +1,6 @@
 <div #guiContainer className="guiContainer"></div>
 
 <!-- render 'graph' component for every int, float and bool param -->
-<ul id="menus">
+<ul id="external-subs">
   <app-param-sub *ngFor="let param of params | async" [param]="param"></app-param-sub>
 </ul>
