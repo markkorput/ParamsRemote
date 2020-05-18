@@ -27,6 +27,7 @@ export class Param {
   }
 
   set(value: any): void {
+    // console.log('set: ', this.type, value);
     const val = this.setter ? this.setter(value) : value;
     if (this.value !== val) {
       this.value = val;
@@ -129,10 +130,14 @@ export class Params {
     return this.params.find(p => p.path === path);
   }
 
-  getValues(): object {
+  getValues(opts: {}): object {
+    opts = opts || {};
+
     const result = {};
     this.params.forEach(p => {
-      if (p.type !== 'v') { result[p.path] = p.value; }
+      if (p.type === 'v') return; 
+      if (opts['skipImages'] === true && p.type === 'g') return;
+      result[p.path] = p.value;
     });
     return result;
   }
@@ -391,7 +396,6 @@ export class WebsocketsClient extends Client {
 
       param.set(value);
     });
-
   }
 
   requestSchemaInformation(maxAttempts?: number) {

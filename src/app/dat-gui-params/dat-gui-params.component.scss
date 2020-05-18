@@ -1,1 +1,21 @@
-.gui .close-button { display: none !important; }
+:host::ng-deep a.opts {
+  display: inline-block;
+  height: 5px;
+  // background: red;
+  margin:0; padding: 0 10px 0 5px;
+  overflow: hidden;
+}
+
+:host::ng-deep a.opts span {
+  display: block;
+  width: 5px;
+  height: 6px;
+  background:#666;
+  transform: rotate(45deg) translate(0, -4px);
+}
+
+:host::ng-deep a.opts:hover span { background: white; }
+:host::ng-deep li.sub { height: auto; }
+:host::ng-deep li.sub img { height: 200px; }
+:host::ng-deep li.sub .menu .icon { cursor: pointer; }
+#external-subs { display: none; }

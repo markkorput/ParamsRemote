@@ -11,13 +11,13 @@
 
 <div *ngIf="showSettings" class="list-group-item settings">
   Style: 
-  <select id="style" [value]="settings.style || 'ParamsRemote'" (change)="setStyle($event.target.value)">
+  <select id="style" [value]="settings.style || 'dat.GUI'" (change)="setStyle($event.target.value)">
     <option *ngFor="let style of ['dat.GUI', 'ParamsRemote']" [value]="style">
       {{ style }}
     </option>
   </select>
 
-  <span *ngIf="settings.style === 'dat.GUI'">
+  <span *ngIf="(settings.style || 'dat.GUI') === 'dat.GUI'">
     <input type="checkbox"
       [ngModel]="settings.liveUpdates === true"
       (change)="onSettingsLiveUpdatesChange($event.target.checked)"/>
@@ -37,8 +37,8 @@
   <!-- <button
     (click)="restoreValues()">restore values</button> -->
 </div>
-
-<app-dat-gui-params *ngIf="settings.style==='dat.GUI'" [sessionId]="id" [liveUpdates]="settings.liveUpdates === true">
+ 
+<app-dat-gui-params *ngIf="settings.style==='dat.GUI' || settings.style===undefined" [sessionId]="id" [liveUpdates]="settings.liveUpdates === true">
 </app-dat-gui-params>
 
 <ul class="list-group" *ngIf="settings.style==='ParamsRemote'">
