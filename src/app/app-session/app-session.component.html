@@ -17,7 +17,7 @@
     </option>
   </select>
 
-  <span *ngIf="settings.style === 'dat.GUI'">
+  <span *ngIf="(settings.style || 'dat.GUI') === 'dat.GUI'">
     <input type="checkbox"
       [ngModel]="settings.liveUpdates === true"
       (change)="onSettingsLiveUpdatesChange($event.target.checked)"/>

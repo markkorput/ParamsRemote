@@ -20,13 +20,12 @@
 
 <div class="graph-container" *ngIf="showGraph">
   <canvas baseChart #graph 
-    width="400" height="400"
-    [datasets]="lineChartData"
-    [labels]="lineChartLabels"
-    [options]="lineChartOptions"
-    [colors]="lineChartColors"
-    [legend]="lineChartLegend"
-    [chartType]="lineChartType"
-    [plugins]="lineChartPlugins">
+    chartType="line"
+    [datasets]="graphData"
+    [labels]="graphLabels"
+    [options]="graphOptions"
+    [legend]="false"
+    [colors]="graphColors"
+    [plugins]="[]">
   </canvas>
 </div>
