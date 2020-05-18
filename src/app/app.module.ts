@@ -10,6 +10,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatSelectModule} from '@angular/material/select';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { ChartsModule } from 'ng2-charts';
 
 // import { AppComponent } from './app.component';
 import { AppHomeComponentComponent } from './app-home-component/app-home-component.component';
@@ -37,7 +38,8 @@ import { ParamSubComponent, DatGuiParamsComponent } from './dat-gui-params/dat-g
     MatSliderModule, MatToolbarModule,
     MatIconModule, MatListModule,
     MatGridListModule, MatButtonToggleModule,
-    MatSelectModule
+    MatSelectModule,
+    ChartsModule
   ],
   providers: [],
   // bootstrap: [AppComponent]

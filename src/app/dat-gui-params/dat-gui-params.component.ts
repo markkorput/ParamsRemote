@@ -1,5 +1,8 @@
 import { Component, OnInit, AfterViewInit, Input, NgZone, ViewChild, ViewChildren, QueryList, ElementRef, ɵɵsetComponentScope } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ChartDataSets, ChartOptions } from 'chart.js';
+import { Color, Label } from 'ng2-charts';
+
 import { RemoteParamsService, Client, Params, Param } from '../remote-params.service';
 import * as dat from 'dat.gui';
 
@@ -70,7 +73,15 @@ function Proxy(p: Param): void {
       <img #previewImg *ngIf="showImage && param.type==='g'" src="" [alt]="param.path" [title]="param.path+' preview'" />
 
       <div #graph *ngIf="showGraph" class="graph">
-        todo: graph
+        <canvas baseChart width="400" height="400"
+          [datasets]="lineChartData"
+          [labels]="lineChartLabels"
+          [options]="lineChartOptions"
+          [colors]="lineChartColors"
+          [legend]="lineChartLegend"
+          [chartType]="lineChartType"
+          [plugins]="lineChartPlugins">
+  </canvas>
       </div>
     </li>
   `
@@ -86,6 +97,26 @@ export class ParamSubComponent implements AfterViewInit {
   showMenu = false;
   showImage = true;
   showGraph = false;
+
+
+  public lineChartData: ChartDataSets[] = [
+    { data: [65, 59, 80, 81, 56, 55, 40], label: 'Series A' },
+  ];
+  public lineChartLabels: Label[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+  public lineChartOptions: (ChartOptions & { annotation?: any }) = {
+    responsive: true,
+  };
+  public lineChartColors: Color[] = [
+    {
+      borderColor: 'black',
+      backgroundColor: 'rgba(255,0,0,0.3)',
+    },
+  ];
+  public lineChartLegend = true;
+  public lineChartType = 'line';
+  public lineChartPlugins = [];
+
+
 
   constructor(
     private ngZone: NgZone
