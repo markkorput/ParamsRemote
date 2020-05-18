@@ -1,0 +1,32 @@
+<a #arrowEl class="opts" href="#" (click)="toggleMenu()"><span></span></a>
+
+<mat-toolbar #menuEl class="menu" *ngIf="showMenu">
+  <mat-icon *ngIf="param.type==='g'"
+    class="icon"
+    (click)="toggleImage()"
+    aria-hidden="false"
+    aria-label="Image"
+    title="Toggle Image">photo</mat-icon>
+
+  <mat-icon *ngIf="isGraphSupported()"
+    class="icon"
+    (click)="toggleGraph()"
+    aria-hidden="false"
+    aria-label="Graph"
+    title="Toggle Graph">insert_chart_outlined</mat-icon>
+</mat-toolbar>
+
+<img #previewImg *ngIf="showImage && param.type==='g'" src="" [alt]="param.path" [title]="param.path+' preview'" />
+
+<div class="graph-container" *ngIf="showGraph">
+  <canvas baseChart #graph 
+    width="400" height="400"
+    [datasets]="lineChartData"
+    [labels]="lineChartLabels"
+    [options]="lineChartOptions"
+    [colors]="lineChartColors"
+    [legend]="lineChartLegend"
+    [chartType]="lineChartType"
+    [plugins]="lineChartPlugins">
+  </canvas>
+</div>

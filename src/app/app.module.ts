@@ -17,7 +17,8 @@ import { AppHomeComponentComponent } from './app-home-component/app-home-compone
 import { AppConnectFormComponent } from './app-connect-form/app-connect-form.component';
 import { AppSessionComponent } from './app-session/app-session.component';
 import { ParamComponent } from './param/param.component';
-import { ParamSubComponent, DatGuiParamsComponent } from './dat-gui-params/dat-gui-params.component';
+import { DatGuiParamsComponent } from './dat-gui-params/dat-gui-params.component';
+import { DatGuiParamDetailsComponent } from './dat-gui-param-details/dat-gui-param-details.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,7 @@ import { ParamSubComponent, DatGuiParamsComponent } from './dat-gui-params/dat-g
     AppSessionComponent,
     ParamComponent,
     DatGuiParamsComponent,
-    ParamSubComponent
+    DatGuiParamDetailsComponent
   ],
   imports: [
     BrowserModule,

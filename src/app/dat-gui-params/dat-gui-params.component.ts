@@ -1,10 +1,11 @@
-import { Component, OnInit, AfterViewInit, Input, NgZone, ViewChild, ViewChildren, QueryList, ElementRef, ɵɵsetComponentScope } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input,
+  ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ChartDataSets, ChartOptions } from 'chart.js';
-import { Color, Label } from 'ng2-charts';
+import * as dat from 'dat.gui';
 
 import { RemoteParamsService, Client, Params, Param } from '../remote-params.service';
-import * as dat from 'dat.gui';
+import { DatGuiParamDetailsComponent } from '../dat-gui-param-details/dat-gui-param-details.component';
+
 
 /**
  * Create a proxy object (with a `value` property and a `destroy` method)
@@ -48,109 +49,6 @@ function Proxy(p: Param): void {
   };
 }
 
-@Component({
-  selector: 'app-param-sub',
-  template: `
-    <li #myLi class="sub shown">
-      <a #arrowEl class="opts" href="#" (click)="toggleMenu()"><span></span></a>
-
-      <mat-toolbar #menuEl class="menu" *ngIf="showMenu">
-        <mat-icon *ngIf="param.type==='g'"
-          class="icon"
-          (click)="toggleImage()"
-          aria-hidden="false"
-          aria-label="Image"
-          title="Toggle Image">photo</mat-icon>
-
-        <mat-icon *ngIf="isGraphSupported()"
-          class="icon"
-          (click)="toggleGraph()"
-          aria-hidden="false"
-          aria-label="Graph"
-          title="Toggle Graph">insert_chart_outlined</mat-icon>
-      </mat-toolbar>
-
-      <img #previewImg *ngIf="showImage && param.type==='g'" src="" [alt]="param.path" [title]="param.path+' preview'" />
-
-      <div #graph *ngIf="showGraph" class="graph">
-        <canvas baseChart width="400" height="400"
-          [datasets]="lineChartData"
-          [labels]="lineChartLabels"
-          [options]="lineChartOptions"
-          [colors]="lineChartColors"
-          [legend]="lineChartLegend"
-          [chartType]="lineChartType"
-          [plugins]="lineChartPlugins">
-  </canvas>
-      </div>
-    </li>
-  `
-})
-export class ParamSubComponent implements AfterViewInit {
-  @Input() param: Param;
-
-  @ViewChild('myLi', {static: true}) liEl: ElementRef;
-  @ViewChild('arrowEl', {static: false}) arrowEl: ElementRef;
-  @ViewChild('previewImg', {static: false}) imgEl: ElementRef;
-  @ViewChild('menuEl', {static: true}) menuEl: ElementRef;
-
-  showMenu = false;
-  showImage = true;
-  showGraph = false;
-
-
-  public lineChartData: ChartDataSets[] = [
-    { data: [65, 59, 80, 81, 56, 55, 40], label: 'Series A' },
-  ];
-  public lineChartLabels: Label[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-  public lineChartOptions: (ChartOptions & { annotation?: any }) = {
-    responsive: true,
-  };
-  public lineChartColors: Color[] = [
-    {
-      borderColor: 'black',
-      backgroundColor: 'rgba(255,0,0,0.3)',
-    },
-  ];
-  public lineChartLegend = true;
-  public lineChartType = 'line';
-  public lineChartPlugins = [];
-
-
-
-  constructor(
-    private ngZone: NgZone
-  ) { }
-
-  ngAfterViewInit() {
-    this.param.valueChange.subscribe((data: string) => this._showImageData(data)); // todo: unsubsribe in destroyFunc
-  }
-
-  _showImageData(data: string): void {
-    if (this.imgEl && this.showImage) {
-      this.imgEl.nativeElement.src = `data:image/jpeg;base64,${data.trim()}`;
-    }
-  }
-
-  toggleMenu() {
-    this.showMenu = !this.showMenu;
-  }
-
-  toggleImage() {
-    this.showImage = !this.showImage;
-    if (this.showImage) {
-      this._showImageData(this.param.getValue());
-    }
-  }
-
-  toggleGraph() {
-    this.showGraph = !this.showGraph;
-  }
-
-  isGraphSupported(): boolean {
-    return this.param.type === 'i' || this.param.type === 'f' || this.param.type === 'b' || this.param.type === 'g';
-  }
-}
 
 @Component({
   selector: 'app-dat-gui-params',
@@ -162,7 +60,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   @Input() liveUpdates: false;
 
   @ViewChild('guiContainer', {static: false}) guiContainer: ElementRef;
-  @ViewChildren(ParamSubComponent) subs: QueryList<ParamSubComponent>;
+  @ViewChildren(DatGuiParamDetailsComponent) subs: QueryList<DatGuiParamDetailsComponent>;
 
   params: Observable<Param[]>;
   gui: dat.GUI = undefined;
@@ -340,15 +238,15 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Move view-elements of `subcomps` into the dat.GUI controllers container
-   * @param subcomps (QueryList<ParamSubComponent>): querylist of rendered components
-   *  whose view-elements will be displaced.
+   * Move view-elements of `comps` into the dat.GUI controllers container
+   * @param comps (QueryList<DatGuiParamDetailsComponent>): querylist of rendered components
+   * that will be displaced.
    */
-  _repositionSubs(subcomps: QueryList<ParamSubComponent>): void {
-    // the imgcomps are dynamically rendered _below_ the dat.GUI container,
+  _repositionSubs(comps: QueryList<DatGuiParamDetailsComponent>): void {
+    // the comps are dynamically rendered _below_ the dat.GUI container,
     // we'll move each of these into the dat.GUI container, right below,
     // the <li> of the corresponding param controller (if found)
-    subcomps.forEach((comp) => {
+    comps.forEach((comp) => {
       // find the controller that corresponds to this component's param
       const ctrl = this.guiControllers[comp.param.path];
 
@@ -356,8 +254,9 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      // move the <li> element to right after the controller's <li>
-      ctrl.domElement.parentNode.parentNode.after(comp.liEl.nativeElement);
+      // move the parent <li> in which the comps are rendered to right after
+      // the corresponding controller's <li> node.
+      ctrl.domElement.parentNode.parentNode.after(comp.elementRef.nativeElement.parentNode);
 
       // move the <a> arrow element into the controller's propert name container
       ctrl.domElement.parentNode.querySelector('.property-name').appendChild(comp.arrowEl.nativeElement);

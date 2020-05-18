@@ -2,5 +2,7 @@
 
 <!-- render 'graph' component for every int, float and bool param -->
 <ul id="external-subs">
-  <app-param-sub *ngFor="let param of params | async" [param]="param"></app-param-sub>
+  <li #myLi class="sub shown" *ngFor="let param of params | async">
+    <app-dat-gui-param-details [param]="param"></app-dat-gui-param-details>
+  </li>
 </ul>
