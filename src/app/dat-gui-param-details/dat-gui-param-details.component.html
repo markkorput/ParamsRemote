@@ -8,7 +8,7 @@
     aria-label="Image"
     title="Toggle Image">photo</mat-icon>
 
-  <mat-icon *ngIf="isGraphSupported()"
+  <mat-icon *ngIf="hasGraph()"
     class="icon"
     (click)="toggleGraph()"
     aria-hidden="false"
@@ -18,14 +18,6 @@
 
 <img #previewImg *ngIf="showImage && param.type==='g'" src="" [alt]="param.path" [title]="param.path+' preview'" />
 
-<div class="graph-container" *ngIf="showGraph">
-  <canvas baseChart #graph 
-    chartType="line"
-    [datasets]="graphData"
-    [labels]="graphLabels"
-    [options]="graphOptions"
-    [legend]="false"
-    [colors]="graphColors"
-    [plugins]="[]">
-  </canvas>
+<div [class]="'graph-container'+(showGraph ? ' shown' : '')" *ngIf="hasGraph()">
+  <canvas #graphCanvas id="chart"></canvas>
 </div>

@@ -1,8 +1,9 @@
-import { Component, OnInit, AfterViewInit, Input, NgZone, ViewChild, ElementRef } from '@angular/core';
-import { ChartPoint, ChartDataSets, ChartOptions } from 'chart.js';
-import { Color, Label } from 'ng2-charts';
+import { Component, AfterViewInit, Input, ViewChild, ElementRef, EventEmitter } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { TimeSeries, SmoothieChart } from 'smoothie';
 
 import { Param } from '../remote-params.service';
+
 
 @Component({
   selector: 'app-dat-gui-param-details',
@@ -11,34 +12,20 @@ import { Param } from '../remote-params.service';
 })
 export class DatGuiParamDetailsComponent implements AfterViewInit {
   @Input() param: Param;
+  @Input() interval = 100;
 
+  @ViewChild('menuEl', {static: true}) menuEl: ElementRef;
   @ViewChild('arrowEl', {static: false}) arrowEl: ElementRef;
   @ViewChild('previewImg', {static: false}) imgEl: ElementRef;
-  @ViewChild('menuEl', {static: true}) menuEl: ElementRef;
+  @ViewChild('graphCanvas', {static: false}) graphCanvasEl: ElementRef;
 
   showMenu = false;
   showImage = true;
-  showGraph = true;
+  showGraph = false;
 
-  graphData: ChartDataSets[] = [{ data: [] }];
-  graphLabels: Label[] = [];
-  graphOptions: (ChartOptions & { annotation?: any }) = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: { xAxes: [{display: false, type: 'linear'}] },
-  };
-  graphColors: Color[] = [{
-      borderColor: 'rgb(194,24,91)',
-      // backgroundColor: 'rgb(104,0,51)',
-  }];
-
-  graphSize = 256;
-  graphPrePopulate = false;
-  graphContinuously = true;
-  graphLastValue: number;
-  private graphValueSubscription: any;
   private graphInterval: any = undefined;
-  private graphContinuousPlaceholderCount = 0;
+  private graphSeries: TimeSeries;
+  private chart: SmoothieChart;
 
   constructor(
     public elementRef: ElementRef,
@@ -48,8 +35,16 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.param.valueChange.subscribe((data: string) => this._showImageData(data)); // todo: unsubsribe in destroyFunc
 
-    if (this.showGraph) {
-      this.graphStart();
+    if (this.hasGraph()) {
+      this.graphSeries = new TimeSeries();
+      
+      this.chart = new SmoothieChart({responsive: true});
+      this.chart.addTimeSeries(this.graphSeries, { strokeStyle: 'rgba(194, 24, 91)', lineWidth: 2 });
+      this.chart.streamTo(this.graphCanvasEl.nativeElement, 500);
+
+      if (this.showGraph) {
+        this.graphStart();
+      }
     }
   }
 
@@ -70,6 +65,10 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
     }
   }
 
+  hasGraph(): boolean {
+    return this.param.type === 'i' || this.param.type === 'f' || this.param.type === 'b' || this.param.type === 'g';
+  }
+
   toggleGraph() {
     this.showGraph = !this.showGraph;
     if (this.showGraph) {
@@ -79,74 +78,18 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
     }
   }
 
-  isGraphSupported(): boolean {
-    return this.param.type === 'i' || this.param.type === 'f' || this.param.type === 'b' || this.param.type === 'g';
-  }
-
   graphStart(): void {
-    if (this.graphPrePopulate && this.graphData[0].data.length === 0) {
-      this.graphData[0].data = new Array(this.graphSize);
+    this.graphStop();
 
-      this.graphLabels = new Array(this.graphSize);
-      for(let i = 0; i < this.graphSize; i++) {
-        this.graphData[0].data[i] = 0;
-        this.graphLabels[i] = '';
-      }
-    }
-
-    this.graphValueSubscription = this.param.valueChange.subscribe((v: any) => this.graphAddValue(v, false)); //!this.graphContinuously));
-
-    // if (this.graphContinuously) {
-    //   this.graphInterval = setInterval(() => this.graphAddValue(this.graphLastValue, true /* now */), 100 /* 10x/s */);
-    // }
+    this.graphInterval = setInterval(() => {
+      this.graphSeries.append(Date.now(), this.param.getValue());
+    }, this.interval);
   }
 
   graphStop(): void {
-    this.graphValueSubscription.unsubscribe();
     if (this.graphInterval) {
       clearInterval(this.graphInterval);
-    }
-  }
-
-  graphAddValue(value: number, placeholder: boolean): void {
-    // if (!now) {
-    //   this.graphLastValue = value;
-    //   return;
-    // }
-
-    // if (placeholder) {
-    //   console.log('placeholder: ', value);
-    // }
-    this.graphLastValue = value;
-
-    const values: ChartPoint[] = this.graphData[0].data as ChartPoint[];
-
-    const labels = this.graphLabels;
-
-    const d = new Date();
-    const x = d.getTime();
-    const label = ''; // d.toLocaleString('nl', {});
-    const data = {x, y: value} as ChartPoint;
-
-    // simply update last timestamp if value still the same
-    if (placeholder && values.length > 1 && values[values.length - 1].y === value && values[values.length - 2].y === value) {
-      values[values.length - 1] = data;
-      labels[values.length - 1] = label;
-      return;
-    }
-
-    // add value
-    values.push(data);
-    labels.push(label);
-
-    // remove oldest value if too many values
-    if (values.length > this.graphSize) {
-      // remove two, so the array doesn't stay the same length,
-      // otherwise chartjs might nog pick up any changes (?)
-      for(let i = 0; i < 2; i++) {
-        values.shift();
-        labels.shift();
-      }
+      this.graphInterval = null;
     }
   }
 }
