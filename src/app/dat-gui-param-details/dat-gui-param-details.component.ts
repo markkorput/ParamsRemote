@@ -13,15 +13,14 @@ import { Param } from '../remote-params.service';
 export class DatGuiParamDetailsComponent implements AfterViewInit {
   @Input() param: Param;
   @Input() interval = 100;
-
-  @ViewChild('menuEl', {static: true}) menuEl: ElementRef;
+  
   @ViewChild('arrowEl', {static: false}) arrowEl: ElementRef;
   @ViewChild('previewImg', {static: false}) imgEl: ElementRef;
   @ViewChild('graphCanvas', {static: false}) graphCanvasEl: ElementRef;
 
   showMenu = false;
   showImage = true;
-  showGraph = false;
+  showGraph = true;
 
   private graphInterval: any = undefined;
   private graphSeries: TimeSeries;
@@ -37,7 +36,7 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
 
     if (this.hasGraph()) {
       this.graphSeries = new TimeSeries();
-      
+
       this.chart = new SmoothieChart({responsive: true});
       this.chart.addTimeSeries(this.graphSeries, { strokeStyle: 'rgba(194, 24, 91)', lineWidth: 2 });
       this.chart.streamTo(this.graphCanvasEl.nativeElement, 500);
@@ -56,6 +55,7 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
 
   toggleMenu() {
     this.showMenu = !this.showMenu;
+    return false;
   }
 
   toggleImage() {
