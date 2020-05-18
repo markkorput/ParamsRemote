@@ -20,7 +20,7 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
 
   showMenu = false;
   showImage = true;
-  showGraph = true;
+  showGraph = false;
 
   private graphInterval: any = undefined;
   private graphSeries: TimeSeries;
