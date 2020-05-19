@@ -2,14 +2,14 @@ import { TestBed } from '@angular/core/testing';
 
 import { RemoteParamsService, Param } from './remote-params.service';
 
-// describe('RemoteParamsService', () => {
-//   beforeEach(() => TestBed.configureTestingModule({}));
+describe('RemoteParamsService', () => {
+  beforeEach(() => TestBed.configureTestingModule({}));
 
-//   it('should be created', () => {
-//     const service: RemoteParamsService = TestBed.get(RemoteParamsService);
-//     expect(service).toBeTruthy();
-//   });
-// });
+  xit('should be created', () => {
+    const service: RemoteParamsService = TestBed.get(RemoteParamsService);
+    expect(service).toBeTruthy();
+  });
+});
 
 describe('Boolean param', () => {
   it('should recognise various value formats', () => {
