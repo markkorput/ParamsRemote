@@ -10,11 +10,14 @@ export class AppComponent implements OnInit {
   showConnectForm = true;
 
   constructor(
-    private remoteParamsService: RemoteParamsService
+    public remoteParamsService: RemoteParamsService
   ) { }
 
   ngOnInit() {
     this.showConnectForm = this.remoteParamsService.clients.length === 0;
+
+    // Re-enable this to scan default ports for websocket server
+    // TODO make this configurable
     // this.remoteParamsService.findWebsockets((host: string, port: number) => {
     //   console.log('Found websocket server on: ', host, port);
     //   // found sockets are automatically recorded into:

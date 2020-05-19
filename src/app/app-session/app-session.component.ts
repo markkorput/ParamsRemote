@@ -1,8 +1,6 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { RemoteParamsService, Param, Params, Client } from '../remote-params.service';
-import { SettingsService } from '../settings.service';
-import { Observable, of } from 'rxjs';
-import { map, distinct } from 'rxjs/operators';
+import { SettingsService, SessionSettings } from '../settings.service';
 
 @Component({
   selector: 'app-app-session',
@@ -13,7 +11,7 @@ import { map, distinct } from 'rxjs/operators';
 export class AppSessionComponent implements OnInit {
   client: Client = undefined;
   showSettings = false;
-  settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object, style?: string} = {};
+  settings: SessionSettings = {};
   lines: {param?: Param, path?: string}[] = [];
   updateRestoreValuesTimeout: any = undefined;
 
@@ -58,7 +56,7 @@ export class AppSessionComponent implements OnInit {
     this.settingsService.setSessionSettings(this.id, null); // remove settings
   }
 
-  isConnected() {
+  isConnected(): boolean {
     return this.client && this.client.isConnected();
   }
 
@@ -70,7 +68,7 @@ export class AppSessionComponent implements OnInit {
     this.showSettings = !this.showSettings;
   }
 
-  setSettings(settings: {persistView?: boolean, collapsedPaths?: string[], restoreValuesEnabled?: boolean, restoreValues?: object, style?: string}): void {
+  setSettings(settings: SessionSettings): void {
     this.settings = settings;
     this.settingsService.setSessionSettings(this.id, this.settings);
   }
