@@ -11,8 +11,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
-// import { AppComponent } from './app.component';
-import { AppHomeComponentComponent } from './app-home-component/app-home-component.component';
+import { AppComponent } from './app.component';
 import { AppConnectFormComponent } from './app-connect-form/app-connect-form.component';
 import { AppSessionComponent } from './app-session/app-session.component';
 import { ParamComponent } from './param/param.component';
@@ -21,8 +20,7 @@ import { DatGuiParamDetailsComponent } from './dat-gui-param-details/dat-gui-par
 
 @NgModule({
   declarations: [
-    // AppComponent,
-    AppHomeComponentComponent,
+    AppComponent,
     AppConnectFormComponent,
     AppSessionComponent,
     ParamComponent,
@@ -41,7 +39,6 @@ import { DatGuiParamDetailsComponent } from './dat-gui-param-details/dat-gui-par
     MatSelectModule
   ],
   providers: [],
-  // bootstrap: [AppComponent]
-  bootstrap: [AppHomeComponentComponent]
+  bootstrap: [AppComponent]
 })
 export class AppModule { }
