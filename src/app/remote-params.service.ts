@@ -217,14 +217,19 @@ export class Client {
     return this.id;
   }
 
-  connect() {
+  connect(): void {
   }
 
-  disconnect() {
+  disconnect(): void {
   }
 
-  isConnected() {
-
+  /**
+   * isConnected returns the current connection status.
+   * @returns (boolean): True if it has an active connection
+   * with a server. False otherwise.
+   */
+  isConnected(): boolean {
+    return false; // child-class should overwrite
   }
 }
 
@@ -369,7 +374,12 @@ export class WebsocketsClient extends Client {
     }
   }
 
-  isConnected() {
+  /**
+   * isConnected returns the current connection status.
+   * @returns (boolean): True if it has an active socket
+   * connection with a server. False otherwise.
+   */
+  isConnected(): boolean {
     return this.socket !== null;
   }
 
@@ -569,7 +579,13 @@ export class OscClient extends Client {
     // this.input = new OscInputInterface(port);
   }
 
-  isConnected() {
+  /**
+   * isConnected always returns true because the OSC is 
+   * based on the UDP protocol which doesn't invole active
+   * connections.
+   * @returns (boolean): always true
+   */
+  isConnected(): boolean {
     return true;
   }
 }

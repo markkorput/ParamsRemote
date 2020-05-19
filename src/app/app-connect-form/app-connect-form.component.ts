@@ -8,12 +8,13 @@ import { RemoteParamsService } from '../remote-params.service';
   styleUrls: ['./app-connect-form.component.scss']
 })
 export class AppConnectFormComponent implements OnInit {
-  oscConnectForm: FormGroup;
-  websocketsConnectForm: FormGroup;
   @Output() connectAttempt = new EventEmitter<void>();
 
+  oscConnectForm: FormGroup;
+  websocketsConnectForm: FormGroup;
+
   constructor(
-    private remoteParamsService: RemoteParamsService,
+    public remoteParamsService: RemoteParamsService,
     private formBuilder: FormBuilder
   ) {
     this.formBuilder = new FormBuilder();

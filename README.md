@@ -1,35 +1,29 @@
 # ParamsRemote
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.22.
+_Angular/[dat.GUI](https://github.com/dataarts/dat.gui)-based frontend for realtime monitoring and controlling of remote applications._
 
+Connects using websockets to [remote-params](https://github.com/markkorput/pyRemoteParams) servers.
 
-## Running Electron
+## Try it out
 
-Followed [these instructions](https://blog.usejournal.com/how-to-build-native-cross-platform-desktop-apps-with-angular-electron-bd1d6e3919b2) to configure electron.
+Try it at: [http://shortnotion.com/apps/paramsremote/](http://shortnotion.com/apps/paramsremote/). This serverless frontend only supports connection through websockets. You will have to run your own param serving app (see [pyRemoteParams](https://github.com/markkorput/pyRemoteParams)).
 
-Run `npm run electron-build` to build the application and open electron.
+## Compatibility
 
+Currently works with these server-side implementations:
+- [x] [pyRemoteParams](https://github.com/markkorput/pyRemoteParams) (python)
 
-## Development server
+Support planned for:
+- [ ] [Cinder](http://libcinder.org) ```params``` (C++)
+- [ ] [OpenFrameworks](http://https://openframeworks.cc/) ```ofParameter``` (C++)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Preview
 
-## Code scaffolding
+[![preview](docs/preview-720p.gif)](docs/preview-1080p.gif)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Roadmap
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+ * (Electron-based) desktop app
+ * OSC support
+ * Websockets/OSC server for Cinder params
+ * Websockets/OSC server for OpenFrameworks parameters
