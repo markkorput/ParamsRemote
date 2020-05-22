@@ -17,6 +17,8 @@ import { AppSessionComponent } from './app-session/app-session.component';
 import { ParamComponent } from './param/param.component';
 import { DatGuiParamsComponent } from './dat-gui-params/dat-gui-params.component';
 import { DatGuiParamDetailsComponent } from './dat-gui-param-details/dat-gui-param-details.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -36,7 +38,8 @@ import { DatGuiParamDetailsComponent } from './dat-gui-param-details/dat-gui-par
     MatSliderModule, MatToolbarModule,
     MatIconModule, MatListModule,
     MatGridListModule, MatButtonToggleModule,
-    MatSelectModule
+    MatSelectModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [],
   bootstrap: [AppComponent]
