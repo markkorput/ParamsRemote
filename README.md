@@ -1,5 +1,7 @@
 # ParamsRemote
 
+[![Build Status](https://api.travis-ci.org/markkorput/ParamsRemote.svg)](https://api.travis-ci.org/markkorput/ParamsRemote.svg)
+
 _Angular/[dat.GUI](https://github.com/dataarts/dat.gui)-based frontend for realtime monitoring and controlling of remote applications._
 
 Connects using websockets to [remote-params](https://github.com/markkorput/pyRemoteParams) servers.
