@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StorageServiceModule} from 'angular-webstorage-service';
+// import { StorageServiceModule} from 'angular-webstorage-service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -33,7 +33,7 @@ import { environment } from '../environments/environment';
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    StorageServiceModule,
+    // StorageServiceModule,
     BrowserAnimationsModule,
     MatSliderModule, MatToolbarModule,
     MatIconModule, MatListModule,

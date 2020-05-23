@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter, Inject } from '@angular/core';
-import {LOCAL_STORAGE, WebStorageService} from 'angular-webstorage-service';
 import { Observable, of, throwError } from 'rxjs';
+import { SettingsService, GlobalSettings } from './settings.service';
 
 export class Param {
   OPT_MIN = 'min';
@@ -608,7 +608,7 @@ export class RemoteParamsService {
   websocketFinder: WebsocketFinder;
 
   constructor(
-    @Inject(LOCAL_STORAGE) private storage: WebStorageService
+    private settingsService: SettingsService,
   ) {
     this._load();
   }
@@ -679,19 +679,29 @@ export class RemoteParamsService {
   }
 
   _save(): void {
-    this.storage.set('clients', this.clients
+    // this.storage.set('clients', this.clients
+    //   // null if client is null
+    //   .map(c => (c ? {id: c.getId()} : null))
+    //   // filter out nulls
+    //   .filter((c) => c));
+
+    const oldsettings = this.settingsService.getGlobalSettings;
+
+    const clientIds = this.clients
       // null if client is null
-      .map(c => (c ? {id: c.getId()} : null))
+      .map(c => (c ? c.getId() : null))
       // filter out nulls
-      .filter((c) => c));
+      .filter((c) => c);
+
+    const newsettings = { ...oldsettings, ...{ clientIds } } ;
+    this.settingsService.setGlobalSettings(newsettings as GlobalSettings);
   }
 
   _load(): number {
     let count = 0;
 
-    (this.storage.get('clients') || []).forEach((c: {id: string}) => {
-      const client = WebsocketsClient.fromId(c.id) || OscClient.fromId(c.id);
-      // this.clients.push(client);
+    (this.settingsService.getGlobalSettings().clientIds || []).forEach((cid: string) => {
+      const client = WebsocketsClient.fromId(cid) || OscClient.fromId(cid);
       this.connect(client);
       count += 1;
     });
