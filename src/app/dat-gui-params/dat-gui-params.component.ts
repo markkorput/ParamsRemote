@@ -59,7 +59,7 @@ export class DatGuiParamsComponent implements OnInit, AfterViewInit {
   @Input() sessionId: string;
   @Input() liveUpdates: false;
 
-  @ViewChild('guiContainer', {static: false}) guiContainer: ElementRef;
+  @ViewChild('guiContainer') guiContainer: ElementRef;
   @ViewChildren(DatGuiParamDetailsComponent) subs: QueryList<DatGuiParamDetailsComponent>;
 
   params: Observable<Param[]>;

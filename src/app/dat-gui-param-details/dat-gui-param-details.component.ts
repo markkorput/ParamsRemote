@@ -14,9 +14,9 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
   @Input() param: Param;
   @Input() interval = 100;
   
-  @ViewChild('arrowEl', {static: false}) arrowEl: ElementRef;
-  @ViewChild('previewImg', {static: false}) imgEl: ElementRef;
-  @ViewChild('graphCanvas', {static: false}) graphCanvasEl: ElementRef;
+  @ViewChild('arrowEl') arrowEl: ElementRef;
+  @ViewChild('previewImg') imgEl: ElementRef;
+  @ViewChild('graphCanvas') graphCanvasEl: ElementRef;
 
   showMenu = false;
   showImage = true;
