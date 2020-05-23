@@ -1,7 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StorageServiceModule} from 'angular-webstorage-service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,8 +9,10 @@ import {MatListModule} from '@angular/material/list';
 import {MatSelectModule} from '@angular/material/select';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { SESSION_STORAGE } from 'ngx-webstorage-service';
 
 import { AppComponent } from './app.component';
+import { SettingsServiceInjectionToken, SettingsService } from './settings.service';
 import { AppConnectFormComponent } from './app-connect-form/app-connect-form.component';
 import { AppSessionComponent } from './app-session/app-session.component';
 import { ParamComponent } from './param/param.component';
@@ -33,7 +34,6 @@ import { environment } from '../environments/environment';
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    StorageServiceModule,
     BrowserAnimationsModule,
     MatSliderModule, MatToolbarModule,
     MatIconModule, MatListModule,
@@ -41,7 +41,10 @@ import { environment } from '../environments/environment';
     MatSelectModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  providers: [],
+  providers: [
+    { provide: SettingsServiceInjectionToken, useExisting: SESSION_STORAGE },
+    SettingsService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
