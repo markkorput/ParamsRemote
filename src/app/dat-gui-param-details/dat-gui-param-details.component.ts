@@ -13,7 +13,9 @@ import { Param } from '../remote-params.service';
 export class DatGuiParamDetailsComponent implements AfterViewInit {
   @Input() param: Param;
   @Input() interval = 100;
-  
+  @Input() bars: boolean = true;
+  @Input() barWidth: number = 10.0;
+
   @ViewChild('arrowEl') arrowEl: ElementRef;
   @ViewChild('previewImg') imgEl: ElementRef;
   @ViewChild('graphCanvas') graphCanvasEl: ElementRef;
@@ -23,6 +25,7 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
   showGraph = false;
 
   private graphInterval: any = undefined;
+  private valueChangeSubscription?: Subscription = undefined;
   private graphSeries: TimeSeries;
   private chart: SmoothieChart;
 
@@ -81,15 +84,31 @@ export class DatGuiParamDetailsComponent implements AfterViewInit {
   graphStart(): void {
     this.graphStop();
 
-    this.graphInterval = setInterval(() => {
-      this.graphSeries.append(Date.now(), this.param.getValue());
-    }, this.interval);
+    if (this.bars) {
+      this.valueChangeSubscription = this.param.valueChange.subscribe((v) => {
+        const t = Date.now();
+        const DELTA = 1.0;
+        this.graphSeries.append(t, 0.0);
+        this.graphSeries.append(t+DELTA, v);
+        this.graphSeries.append(t+this.barWidth, v);
+        this.graphSeries.append(t+this.barWidth+DELTA, 0.0);
+      });
+    } else {
+      this.graphInterval = setInterval(() => {
+        this.graphSeries.append(Date.now(), this.param.getValue());
+      }, this.interval);
+    }
   }
 
   graphStop(): void {
     if (this.graphInterval) {
       clearInterval(this.graphInterval);
       this.graphInterval = null;
+    }
+
+    if (this.valueChangeSubscription) {
+      this.valueChangeSubscription.unsubscribe();
+      this.valueChangeSubscription = undefined;
     }
   }
 }
